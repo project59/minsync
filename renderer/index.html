@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PhoneSync</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { primary: '#3b82f6' }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans antialiased">
+  <div id="app" class="max-w-4xl mx-auto p-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+      <h1 class="text-2xl font-bold text-gray-800">PhoneSync</h1>
+      <span id="device-status" class="text-sm px-3 py-1 rounded-full bg-gray-200 text-gray-600">Checking...</span>
+    </div>
+
+    <!-- Setup guide (shown when ADB/phone not ready) -->
+    <div id="setup-panel" class="bg-white rounded-lg shadow-sm border p-6 mb-6 hidden">
+      <h2 class="text-lg font-semibold mb-4">Getting started</h2>
+      <div id="setup-content"></div>
+    </div>
+
+    <!-- Main UI (shown when device is connected) -->
+    <div id="main-ui" class="hidden">
+      <!-- Destination -->
+      <div class="bg-white rounded-lg shadow-sm border p-5 mb-6">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-3 h-3 rounded-full bg-green-500" id="status-dot"></div>
+          <span class="font-medium" id="device-name"></span>
+        </div>
+        <div class="flex items-center gap-2">
+          <label class="text-sm text-gray-500">Destination:</label>
+          <input id="dest-path" type="text" value="" class="flex-1 border rounded px-2 py-1 text-sm bg-gray-50 font-mono" />
+          <button id="browse-btn" class="text-sm px-3 py-1 bg-gray-100 border rounded hover:bg-gray-200 whitespace-nowrap">Browse</button>
+        </div>
+      </div>
+
+      <!-- Folder Selection -->
+      <div class="bg-white rounded-lg shadow-sm border p-5 mb-6">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="font-semibold">Folders to sync</h2>
+          <div class="flex gap-2">
+            <button id="select-all-btn" class="text-xs px-2 py-1 bg-gray-100 border rounded hover:bg-gray-200">Select all</button>
+            <button id="deselect-all-btn" class="text-xs px-2 py-1 bg-gray-100 border rounded hover:bg-gray-200">Deselect all</button>
+          </div>
+        </div>
+        <div id="folder-tree" class="max-h-60 overflow-y-auto text-sm space-y-1 p-2 border rounded bg-gray-50">
+          <p class="text-gray-400 italic text-center py-4">Loading folders from phone...</p>
+        </div>
+      </div>
+
+      <!-- Scan Preview -->
+      <div id="preview-panel" class="bg-white rounded-lg shadow-sm border p-5 mb-6 hidden">
+        <h2 class="font-semibold mb-3">Scan results</h2>
+        <div class="grid grid-cols-4 gap-4 mb-4">
+          <div class="bg-blue-50 rounded p-3 text-center">
+            <div class="text-2xl font-bold text-blue-600" id="count-new">0</div>
+            <div class="text-xs text-gray-500">New</div>
+          </div>
+          <div class="bg-yellow-50 rounded p-3 text-center">
+            <div class="text-2xl font-bold text-yellow-600" id="count-modified">0</div>
+            <div class="text-xs text-gray-500">Modified</div>
+          </div>
+          <div class="bg-green-50 rounded p-3 text-center">
+            <div class="text-2xl font-bold text-green-600" id="count-unchanged">0</div>
+            <div class="text-xs text-gray-500">Unchanged</div>
+          </div>
+          <div class="bg-red-50 rounded p-3 text-center">
+            <div class="text-2xl font-bold text-red-600" id="count-deleted">0</div>
+            <div class="text-xs text-gray-500">Not on phone</div>
+          </div>
+        </div>
+        <div id="moved-files" class="text-xs text-gray-500 mb-2 hidden"></div>
+      </div>
+
+      <!-- Status log -->
+      <div id="status-log" class="text-xs text-gray-400 mb-2 hidden">
+        <span id="status-msg"></span>
+        <span id="status-count" class="font-mono ml-2"></span>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex gap-3 mb-8">
+        <button id="scan-btn" disabled class="flex-1 py-2.5 bg-primary text-white rounded-lg font-medium opacity-50 cursor-not-allowed">
+          Scan for changes
+        </button>
+        <button id="sync-btn" disabled class="flex-1 py-2.5 bg-green-600 text-white rounded-lg font-medium opacity-50 cursor-not-allowed">
+          Sync now
+        </button>
+      </div>
+
+      <!-- Progress -->
+      <div id="progress-panel" class="bg-white rounded-lg shadow-sm border p-5 mb-6 hidden">
+        <div class="flex justify-between text-sm mb-2">
+          <span id="progress-label" class="truncate mr-4">Starting...</span>
+          <span id="progress-count" class="whitespace-nowrap">0 / 0</span>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-2.5">
+          <div id="progress-bar" class="bg-primary h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <!-- Sync History -->
+      <div class="bg-white rounded-lg shadow-sm border p-5">
+        <h2 class="font-semibold mb-3">Sync history</h2>
+        <div id="sync-history" class="text-sm space-y-2">
+          <p class="text-gray-400 italic">No syncs yet</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="db.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

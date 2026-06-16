@@ -1,0 +1,14 @@
+{
+  "name": "phonesync",
+  "version": "1.0.0",
+  "description": "One-way incremental Android backup via ADB",
+  "main": "main.js",
+  "scripts": {
+    "postinstall": "node scripts/download-adb.js",
+    "start": "electron .",
+    "dev": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^33.4.11"
+  }
+}
