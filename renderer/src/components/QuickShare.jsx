@@ -1,0 +1,349 @@
+import { useState, useEffect, useRef, useCallback } from 'react'
+import {
+  Wifi, WifiOff, QrCode, FolderOpen, Upload, Download, RefreshCw,
+  Copy, Check, X, FileUp, FileDown
+} from 'lucide-react'
+import qrcode from '../qrcode.js'
+
+export function QuickShare() {
+  const [running, setRunning] = useState(false)
+  const [status, setStatus] = useState(null)
+  const [receiveDir, setReceiveDir] = useState('')
+  const [shareDir, setShareDir] = useState('')
+  const [port, setPort] = useState(0)
+  const [qrUrl, setQrUrl] = useState('')
+  const [qrSvg, setQrSvg] = useState('')
+  const [received, setReceived] = useState([])
+  const [downloads, setDownloads] = useState([])
+  const [pcFiles, setPcFiles] = useState([])
+  const [error, setError] = useState('')
+  const [copied, setCopied] = useState(false)
+  const [dragActive, setDragActive] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const logRef = useRef(null)
+  const [log, setLog] = useState([])
+
+  function addLog(msg) {
+    setLog(prev => [...prev.slice(-49), { time: new Date().toLocaleTimeString(), msg }])
+  }
+
+  const refreshStatus = useCallback(async () => {
+    const s = await window.api.share.status()
+    setStatus(s)
+    setRunning(s.running)
+    if (s.running) {
+      setPort(s.port)
+      setReceiveDir(s.receiveDir)
+      setShareDir(s.shareDir)
+      setQrUrl(s.url)
+    }
+  }, [])
+
+  useEffect(() => {
+    refreshStatus()
+    const off = window.api.share.onEvent((evt) => {
+      if (evt.type === 'file-received') {
+        setReceived(prev => [{ ...evt.payload, ts: Date.now() }, ...prev])
+        addLog(`Received: ${evt.payload.name} (${humanSize(evt.payload.size)})`)
+      } else if (evt.type === 'file-downloaded') {
+        setDownloads(prev => [{ ...evt.payload, ts: Date.now() }, ...prev])
+        addLog(`Phone downloaded: ${evt.payload.name} (${humanSize(evt.payload.size)})`)
+      }
+    })
+    return () => { if (off) off() }
+  }, [refreshStatus])
+
+  useEffect(() => {
+    if (qrUrl) {
+      try {
+        const qr = qrcode(0, 'M')
+        qr.addData(qrUrl)
+        qr.make()
+        setQrSvg(qr.createSvgTag({ cellSize: 4, margin: 2 }))
+      } catch (err) {
+        console.error('QR build failed:', err)
+        setQrSvg('')
+      }
+    } else {
+      setQrSvg('')
+    }
+  }, [qrUrl])
+
+  async function handlePickReceive() {
+    const f = await window.api.share.pickFolder()
+    if (f) {
+      setReceiveDir(f)
+      addLog(`Receive folder: ${f}`)
+    }
+  }
+
+  async function handlePickShare() {
+    const f = await window.api.share.pickFolder()
+    if (f) {
+      setShareDir(f)
+      addLog(`Share folder: ${f}`)
+      if (running) {
+        const r = await window.api.share.start({ port, receiveDir, shareDir: f })
+        if (r.ok) { setPort(r.port); setQrUrl(r.url); refreshPcFiles() }
+      }
+    }
+  }
+
+  async function refreshPcFiles() {
+    const r = await window.api.share.listPcFiles()
+    setPcFiles(r.files || [])
+  }
+
+  useEffect(() => {
+    if (running && shareDir) refreshPcFiles()
+  }, [running, shareDir])
+
+  async function handleStart() {
+    setError('')
+    if (!receiveDir) { setError('Pick a receive folder first'); return }
+    if (!shareDir) { setError('Pick a share folder first'); return }
+    setBusy(true)
+    const r = await window.api.share.start({ port, receiveDir, shareDir })
+    setBusy(false)
+    if (!r.ok) { setError(r.error || 'Failed to start'); return }
+    setRunning(true)
+    setPort(r.port)
+    setQrUrl(r.url)
+    setStatus(await window.api.share.status())
+    addLog(`Server started on ${r.url}`)
+  }
+
+  async function handleStop() {
+    await window.api.share.stop()
+    setRunning(false)
+    setQrUrl('')
+    addLog('Server stopped')
+    refreshStatus()
+  }
+
+  async function copyUrl() {
+    if (!qrUrl) return
+    try {
+      await navigator.clipboard.writeText(qrUrl)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1500)
+    } catch {}
+  }
+
+  async function handleDrop(e) {
+    e.preventDefault()
+    setDragActive(false)
+    const files = Array.from(e.dataTransfer.files || [])
+    if (!files.length) return
+    setBusy(true)
+    for (const f of files) {
+      const r = await window.api.share.addFile(f.path)
+      if (r.ok) addLog(`Added to share: ${f.name}`)
+      else addLog(`Failed: ${f.name} - ${r.error}`)
+    }
+    setBusy(false)
+    refreshPcFiles()
+  }
+
+  function humanSize(n) {
+    if (n < 1024) return n + ' B'
+    if (n < 1048576) return (n / 1024).toFixed(1) + ' KB'
+    if (n < 1073741824) return (n / 1048576).toFixed(1) + ' MB'
+    return (n / 1073741824).toFixed(1) + ' GB'
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="bg-white dark:bg-zinc-900 border-primary p-5">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            {running ? <Wifi className="w-5 h-5 text-emerald-500" /> : <WifiOff className="w-5 h-5 text-zinc-400" />}
+            <h2 className="font-semibold">Quick Share</h2>
+          </div>
+          {running ? (
+            <span className="flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400">
+              <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" /> Live on port {port}
+            </span>
+          ) : (
+            <span className="text-xs text-zinc-400">Not running</span>
+          )}
+        </div>
+
+        <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4">
+          Start a wireless server on your PC. Scan the QR code with your phone's camera to open
+          a web page for sending/receiving files — no app install needed, works on any phone with a browser on the same WiFi.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+          <div>
+            <label className="text-xs text-zinc-500 mb-1 block">Receive folder (phone → PC)</label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={receiveDir}
+                onChange={(e) => setReceiveDir(e.target.value)}
+                className="flex-1 border px-3 py-2 text-sm bg-zinc-50 dark:bg-zinc-900 dark:text-white dark:border-zinc-700 font-mono"
+                placeholder="Where uploads from phone will land"
+              />
+              <button onClick={handlePickReceive} className="btn-secondary"><FolderOpen className="w-4 h-4" /></button>
+            </div>
+          </div>
+          <div>
+            <label className="text-xs text-zinc-500 mb-1 block">Share folder (PC → phone)</label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={shareDir}
+                onChange={(e) => setShareDir(e.target.value)}
+                className="flex-1 border px-3 py-2 text-sm bg-zinc-50 dark:bg-zinc-900 dark:text-white dark:border-zinc-700 font-mono"
+                placeholder="Files the phone can browse/download"
+              />
+              <button onClick={handlePickShare} className="btn-secondary"><FolderOpen className="w-4 h-4" /></button>
+            </div>
+          </div>
+        </div>
+
+        {error && <div className="text-sm text-red-600 dark:text-red-400 mb-3">{error}</div>}
+
+        <div className="flex gap-3">
+          {!running ? (
+            <button onClick={handleStart} disabled={busy || !receiveDir || !shareDir} className="btn-action flex-1 py-3 flex items-center justify-center gap-2">
+              {busy && <RefreshCw className="w-4 h-4 animate-spin" />}
+              <Wifi className="w-4 h-4" /> Start sharing
+            </button>
+          ) : (
+            <button onClick={handleStop} className="btn-danger flex-1 py-3 flex items-center justify-center gap-2">
+              <WifiOff className="w-4 h-4" /> Stop server
+            </button>
+          )}
+        </div>
+      </div>
+
+      {running && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-white dark:bg-zinc-900 border-primary p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <QrCode className="w-5 h-5 text-zinc-400" />
+              <h3 className="font-semibold">Scan with phone</h3>
+            </div>
+            <div className="flex flex-col items-center">
+              {qrSvg ? (
+                <div
+                  className="bg-white p-3 border border-zinc-200 dark:border-zinc-700"
+                  dangerouslySetInnerHTML={{ __html: qrSvg }}
+                  style={{ width: 232, height: 232 }}
+                />
+              ) : (
+                <div className="w-[232px] h-[232px] flex items-center justify-center text-zinc-400 text-sm">
+                  Generating…
+                </div>
+              )}
+              <div className="flex items-center gap-2 mt-3 w-full">
+                <code className="flex-1 text-xs font-mono px-3 py-2 bg-zinc-100 dark:bg-zinc-800 dark:text-zinc-300 truncate">{qrUrl}</code>
+                <button onClick={copyUrl} className="btn-secondary p-2" aria-label="Copy URL">
+                  {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                </button>
+              </div>
+              <p className="text-xs text-zinc-400 mt-3 text-center">
+                Make sure your phone is on the same WiFi as this PC.
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-zinc-900 border-primary p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <FileUp className="w-5 h-5 text-zinc-400" />
+              <h3 className="font-semibold">Quick add to share folder</h3>
+            </div>
+            <div
+              onDragEnter={(e) => { e.preventDefault(); setDragActive(true) }}
+              onDragOver={(e) => { e.preventDefault(); setDragActive(true) }}
+              onDragLeave={(e) => { e.preventDefault(); setDragActive(false) }}
+              onDrop={handleDrop}
+              className={`border-2 border-dashed p-8 text-center text-sm transition-colors ${dragActive ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/10 text-emerald-600' : 'border-zinc-300 dark:border-zinc-700 text-zinc-500'}`}
+            >
+              {busy ? <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2" /> : <Upload className="w-5 h-5 mx-auto mb-2" />}
+              Drag &amp; drop files here to copy into the share folder
+            </div>
+          </div>
+        </div>
+      )}
+
+      {running && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-white dark:bg-zinc-900 border-primary p-5">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <FileDown className="w-5 h-5 text-zinc-400" />
+                <h3 className="font-semibold">Files phone can download</h3>
+              </div>
+              <button onClick={refreshPcFiles} className="btn-secondary p-2"><RefreshCw className="w-4 h-4" /></button>
+            </div>
+            {pcFiles.length === 0 ? (
+              <p className="text-zinc-400 italic text-sm">Share folder is empty. Drop files above.</p>
+            ) : (
+              <ul className="divide-y dark:divide-zinc-700 max-h-72 overflow-auto">
+                {pcFiles.map(f => (
+                  <li key={f.path} className="flex items-center justify-between py-2 text-sm">
+                    <span className="truncate flex-1 font-mono text-zinc-700 dark:text-zinc-300">{f.path}</span>
+                    <span className="text-zinc-400 text-xs ml-3 whitespace-nowrap">{humanSize(f.size)}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <div className="bg-white dark:bg-zinc-900 border-primary p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <FileUp className="w-5 h-5 text-zinc-400" />
+              <h3 className="font-semibold">Received from phone</h3>
+            </div>
+            {received.length === 0 ? (
+              <p className="text-zinc-400 italic text-sm">No files received yet.</p>
+            ) : (
+              <ul className="divide-y dark:divide-zinc-700 max-h-72 overflow-auto">
+                {received.map((r, i) => (
+                  <li key={i} className="flex items-center justify-between py-2 text-sm">
+                    <span className="truncate flex-1 font-mono text-zinc-700 dark:text-zinc-300">{r.name}</span>
+                    <span className="text-zinc-400 text-xs ml-3 whitespace-nowrap">{humanSize(r.size)}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      )}
+
+      {running && downloads.length > 0 && (
+        <div className="bg-white dark:bg-zinc-900 border-primary p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <Download className="w-5 h-5 text-zinc-400" />
+            <h3 className="font-semibold">Recent phone downloads</h3>
+          </div>
+          <ul className="divide-y dark:divide-zinc-700">
+            {downloads.slice(0, 10).map((d, i) => (
+              <li key={i} className="flex items-center justify-between py-2 text-sm">
+                <span className="truncate flex-1 font-mono text-zinc-700 dark:text-zinc-300">{d.name}</span>
+                <span className="text-zinc-400 text-xs ml-3">{humanSize(d.size)}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {log.length > 0 && (
+        <div className="bg-white dark:bg-zinc-900 border-primary p-5">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="font-semibold text-sm">Activity log</h3>
+            <button onClick={() => setLog([])} className="btn-secondary p-1.5"><X className="w-3.5 h-3.5" /></button>
+          </div>
+          <div ref={logRef} className="text-xs font-mono space-y-1 max-h-40 overflow-auto text-zinc-600 dark:text-zinc-400">
+            {log.map((l, i) => (
+              <div key={i}><span className="text-zinc-400">[{l.time}]</span> {l.msg}</div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
