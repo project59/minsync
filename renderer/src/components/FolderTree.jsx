@@ -66,12 +66,12 @@ function TreeNode({ node, selected, onChange, defaultOpen = false }) {
 
   if (!isFolder) {
     return (
-      <label className="flex items-center gap-2 px-2 py-1.5 hover:bg-blue-50 rounded cursor-pointer">
+      <label className="flex items-center gap-2 px-2 py-1.5 hover:bg-blue-50 dark:hover:bg-zinc-700 cursor-pointer">
         <input
           type="checkbox"
           checked={selected.includes(node.path)}
           onChange={(e) => handleDescendantChange(node.path, e.target.checked)}
-          className="rounded border-gray-300 text-primary focus:ring-primary"
+          className="border-gray-300 text-primary focus:ring-primary"
         />
         <Folder className="w-4 h-4 text-yellow-500" />
         <span className="text-sm">{node.name}</span>
@@ -81,13 +81,13 @@ function TreeNode({ node, selected, onChange, defaultOpen = false }) {
 
   return (
     <div>
-      <div className="flex items-center gap-2 px-2 py-1.5 hover:bg-blue-50 rounded">
+      <div className="flex items-center gap-2 px-2 py-1.5 hover:bg-blue-50 dark:hover:bg-zinc-700">
         <input
           type="checkbox"
           checked={allDescendantsSelected}
           ref={el => { if (el) el.indeterminate = isIndeterminate }}
           onChange={(e) => handleCheckboxChange(e.target.checked)}
-          className="rounded border-gray-300 text-primary focus:ring-primary"
+          className="border-gray-300 text-primary focus:ring-primary"
         />
         {isOpen ? (
           <FolderOpen className="w-4 h-4 text-yellow-500" />
@@ -97,7 +97,7 @@ function TreeNode({ node, selected, onChange, defaultOpen = false }) {
         <span className="text-sm font-medium flex-1">{node.name}</span>
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="p-0.5 hover:bg-gray-200 rounded"
+          className="p-0.5 hover:bg-gray-200 dark:hover:bg-zinc-600"
         >
           {isOpen ? (
             <ChevronDown className="w-4 h-4 text-gray-400" />
@@ -107,7 +107,7 @@ function TreeNode({ node, selected, onChange, defaultOpen = false }) {
         </button>
       </div>
       {isOpen && (
-        <div className="ml-5 border-l border-gray-200 pl-2">
+        <div className="ml-5 border-l border-gray-200 dark:border-zinc-700 pl-2">
           {node.children.map(child => (
             <TreeNode
               key={child.path || child.name}
@@ -118,7 +118,7 @@ function TreeNode({ node, selected, onChange, defaultOpen = false }) {
             />
           ))}
           {fileCount > 0 && (
-            <div className="text-xs text-gray-500 px-2 py-1">
+            <div className="text-xs text-gray-500 dark:text-gray-400 px-2 py-1">
               +{fileCount} file{fileCount !== 1 ? 's' : ''}
             </div>
           )}
@@ -130,7 +130,7 @@ function TreeNode({ node, selected, onChange, defaultOpen = false }) {
 
 export function FolderTree({ tree, selected, onChange }) {
   return (
-    <div className="max-h-96 overflow-y-auto text-sm space-y-1 p-2 border rounded bg-gray-50">
+    <div className="max-h-96 overflow-y-auto text-sm space-y-1 p-2 border bg-gray-50 dark:bg-zinc-900 dark:border-zinc-700">
       {tree.map(node => (
         <TreeNode
           key={node.path || node.name}

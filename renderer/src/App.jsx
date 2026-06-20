@@ -152,15 +152,15 @@ export default function App() {
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-3">
           <Phone className="w-6 h-6 text-primary" />
-          <h1 className="text-2xl font-bold text-gray-800">PhoneSync</h1>
+          <h1 className="text-2xl font-bold">PhoneSync</h1>
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full bg-green-500" />
-          <span className="text-sm text-gray-600">{device.model}</span>
+          <span className="w-3 h-3 bg-green-500" />
+          <span className="text-sm text-gray-600 dark:text-gray-400">{device.model}</span>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border p-5 mb-6">
+      <div className="bg-white dark:bg-zinc-800 border p-5 mb-6">
         <div className="flex items-center gap-2 mb-4">
           <FolderOpen className="w-5 h-5 text-gray-400" />
           <span className="font-medium">Destination folder</span>
@@ -170,24 +170,24 @@ export default function App() {
             type="text"
             value={destPath}
             onChange={(e) => setDestPath(e.target.value)}
-            className="flex-1 border rounded px-3 py-2 text-sm bg-gray-50 font-mono"
+            className="flex-1 border px-3 py-2 text-sm bg-gray-50 dark:bg-zinc-900 dark:text-white dark:border-zinc-700 font-mono"
             placeholder="Select a destination folder..."
           />
           <button
             onClick={handleBrowse}
-            className="px-4 py-2 bg-gray-100 border rounded-lg hover:bg-gray-200 text-sm font-medium"
+            className="btn-secondary"
           >
             Browse
           </button>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border p-5 mb-6">
+      <div className="bg-white dark:bg-zinc-800 border p-5 mb-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-semibold">Folders to sync</h2>
           <button
             onClick={() => setSelectedFolders([])}
-            className="text-xs px-3 py-1 bg-gray-100 border rounded hover:bg-gray-200"
+            className="btn-secondary"
           >
             Clear all
           </button>
@@ -218,7 +218,7 @@ export default function App() {
         <button
           onClick={handleScan}
           disabled={isScanning || selectedFolders.length === 0 || !destPath}
-          className="flex-1 py-3 bg-primary text-white rounded-lg font-medium hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="btn-action flex-1 py-3 flex items-center justify-center gap-2"
         >
           {isScanning && <RefreshCw className="w-4 h-4 animate-spin" />}
           {isScanning ? 'Scanning...' : 'Scan for changes'}
