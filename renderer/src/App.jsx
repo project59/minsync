@@ -5,7 +5,8 @@ import { SyncProgress } from './components/SyncProgress'
 import { SyncHistory } from './components/SyncHistory'
 import { SetupGuide } from './components/SetupGuide'
 import { QuickShare } from './components/QuickShare'
-import { FolderOpen, RefreshCw, Sun, Moon, Wifi, Database } from 'lucide-react'
+import { WifiConnect } from './components/WifiConnect'
+import { FolderOpen, RefreshCw, Sun, Moon, Wifi, Database, Usb, PlugZap } from 'lucide-react'
 import { SyncDB } from '../db'
 
 const db = new SyncDB()
@@ -28,6 +29,8 @@ export default function App() {
   const [scanResult, setScanResult] = useState(null)
   const [history, setHistory] = useState([])
   const [tab, setTab] = useState('backup')
+  const [wifiModalOpen, setWifiModalOpen] = useState(false)
+  const [wifiDisconnecting, setWifiDisconnecting] = useState(false)
 
   useEffect(() => {
     pollStatus()
@@ -83,6 +86,26 @@ export default function App() {
       setFolderTree(tree)
       setIsLoadingTree(false)
     }
+  }
+
+  async function handleWifiConnected(connectedDevice) {
+    setWifiModalOpen(false)
+    if (connectedDevice) {
+      setDevice(connectedDevice)
+      setDeviceStatus('connected')
+    }
+    await pollStatus()
+  }
+
+  async function handleWifiDisconnect() {
+    if (!device) return
+    setWifiDisconnecting(true)
+    await window.api.wifi.disconnect(device.id)
+    setWifiDisconnecting(false)
+    setDevice(null)
+    setDeviceStatus('no_device')
+    setFolderTree([])
+    setScanResult(null)
   }
 
   async function handleBrowse() {
@@ -157,27 +180,61 @@ export default function App() {
     setScanResult(null)
     setIsSyncing(false)
     loadHistory()
+
+    if (device?.transport === 'wifi') {
+      try { await window.api.wifi.disconnect(device.id) } catch {}
+      setDevice(null)
+      setDeviceStatus('no_device')
+      setFolderTree([])
+    }
   }
 
   return (
     <div className="max-w-4xl mx-auto p-6">
       <header className="flex items-center justify-between mb-6 border-b pb-4 dark:border-zinc-700">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <h1 className="text-2xl font-bold font-mono">PhoneSync</h1>
           {tab === 'backup' && deviceStatus === 'connected' && device && (
-            <div className="flex items-center gap-2 ml-4 pl-4 border-l dark:border-zinc-700">
-              <span className="w-3 h-3 bg-green-500" />
+            <div className="flex items-center gap-2 ml-2 pl-4 border-l dark:border-zinc-700">
+              {device.transport === 'wifi' ? (
+                <Wifi className="w-3.5 h-3.5 text-emerald-500" />
+              ) : (
+                <Usb className="w-3.5 h-3.5 text-green-500" />
+              )}
               <span className="text-sm text-zinc-600 dark:text-zinc-400">{device.model}</span>
+              <span className="text-xs px-1.5 py-0.5 font-mono uppercase border dark:border-zinc-700 text-zinc-500 dark:text-zinc-400">
+                {device.transport || 'usb'}
+              </span>
+              {device.transport === 'wifi' && (
+                <button
+                  onClick={handleWifiDisconnect}
+                  disabled={wifiDisconnecting || isSyncing}
+                  className="btn-danger py-1 px-2 text-xs ml-1"
+                  title="Disconnect WiFi ADB (recommended after backup)"
+                >
+                  {wifiDisconnecting ? <RefreshCw className="w-3 h-3 animate-spin" /> : 'Disconnect'}
+                </button>
+              )}
             </div>
           )}
         </div>
-        <button
-          onClick={() => setDarkMode(!darkMode)}
-          className="btn-secondary p-2"
-          aria-label="Toggle theme"
-        >
-          {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-        </button>
+        <div className="flex items-center gap-2">
+          {tab === 'backup' && deviceStatus !== 'connected' && (
+            <button
+              onClick={() => setWifiModalOpen(true)}
+              className="btn-secondary py-2 px-3 text-xs flex items-center gap-2"
+            >
+              <PlugZap className="w-4 h-4" /> Connect WiFi
+            </button>
+          )}
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            className="btn-secondary p-2"
+            aria-label="Toggle theme"
+          >
+            {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </button>
+        </div>
       </header>
 
       <div className="flex gap-2 mb-6">
@@ -198,7 +255,7 @@ export default function App() {
       {tab === 'share' ? (
         <QuickShare />
       ) : deviceStatus !== 'connected' ? (
-        <SetupGuide status={deviceStatus} />
+        <SetupGuide status={deviceStatus} onWifiConnect={() => setWifiModalOpen(true)} />
       ) : (
         <>
           <div className="bg-white dark:bg-zinc-900 border-primary p-5 mb-6">
@@ -270,6 +327,14 @@ export default function App() {
 
           <SyncHistory history={history} />
         </>
+      )}
+
+      {wifiModalOpen && (
+        <WifiConnect
+          db={db}
+          onClose={() => setWifiModalOpen(false)}
+          onConnected={handleWifiConnected}
+        />
       )}
     </div>
   )

@@ -3,7 +3,7 @@ const path = require('path')
 const fs = require('fs')
 const http = require('http')
 const os = require('os')
-const { execFile, exec } = require('child_process')
+const { execFile, exec, spawn } = require('child_process')
 const { promisify } = require('util')
 const execFilePromise = promisify(execFile)
 const execPromise = promisify(exec)
@@ -407,12 +407,15 @@ ipcMain.handle('adb:status', async () => {
       return { available: true, error: 'no_device', device: null }
     }
     const parts = lines[0].split(/\s+/)
+    const transportToken = parts.find(p => p.startsWith('transport:'))
+    const transport = transportToken && transportToken.includes('udp') ? 'wifi' : 'usb'
     return {
       available: true,
       error: null,
       device: {
         id: parts[0],
-        model: parts.find(p => p.startsWith('model:'))?.replace('model:', '') || 'Unknown'
+        model: parts.find(p => p.startsWith('model:'))?.replace('model:', '') || 'Unknown',
+        transport
       }
     }
   } catch (err) {
@@ -548,6 +551,221 @@ ipcMain.handle('files:checkPC', async (_, destPath, phoneFiles) => {
   }
   return result
 })
+
+// ---------- ADB version check + WiFi ADB ----------
+function compareVersions(a, b) {
+  const pa = String(a).split('.').map(Number)
+  const pb = String(b).split('.').map(Number)
+  const len = Math.max(pa.length, pb.length)
+  for (let i = 0; i < len; i++) {
+    const da = pa[i] || 0
+    const db = pb[i] || 0
+    if (da !== db) return da - db
+  }
+  return 0
+}
+
+function runAdbSpawn(args, { timeoutMs = 30000, stdinData = null } = {}) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(adbPath, args, {
+      stdio: ['pipe', 'pipe', 'pipe'],
+      windowsHide: true
+    })
+    let stdout = ''
+    let stderr = ''
+    let stdinSent = false
+    let settled = false
+
+    const timer = setTimeout(() => {
+      if (settled) return
+      settled = true
+      try { child.kill('SIGKILL') } catch {}
+      reject(new Error(`Timed out after ${timeoutMs / 1000}s`))
+    }, timeoutMs)
+
+    child.stdout.on('data', (data) => {
+      const text = data.toString()
+      stdout += text
+      if (stdinData && !stdinSent && /pairing code|enter.*code|code:/i.test(text)) {
+        try { child.stdin.write(stdinData + '\n') } catch {}
+        stdinSent = true
+      }
+    })
+
+    child.stderr.on('data', (data) => {
+      stderr += data.toString()
+    })
+
+    child.on('error', (err) => {
+      if (settled) return
+      settled = true
+      clearTimeout(timer)
+      reject(err)
+    })
+
+    child.on('close', (exitCode) => {
+      if (settled) return
+      settled = true
+      clearTimeout(timer)
+      resolve({ stdout: stdout.trim(), stderr: stderr.trim(), exitCode })
+    })
+  })
+}
+
+async function getAdbVersionRaw() {
+  if (!adbPath) return null
+  try {
+    const { stdout } = await execPromise(`${adbPath} version`)
+    const m = stdout.match(/Android Debug Bridge version\s+([\d.]+)/)
+    return m ? m[1] : null
+  } catch {
+    return null
+  }
+}
+
+ipcMain.handle('adb:version', async () => {
+  const version = await getAdbVersionRaw()
+  if (!version) return { version: null, supportsWifi: false, supportsMdns: false }
+  return {
+    version,
+    supportsWifi: compareVersions(version, '1.0.41') >= 0,
+    supportsMdns: compareVersions(version, '1.0.41') >= 0
+  }
+})
+
+ipcMain.handle('adb:redownload', async () => {
+  return new Promise((resolve) => {
+    const child = require('child_process').spawn('node', [path.join(__dirname, 'scripts', 'download-adb.js'), '--force'], { stdio: 'pipe' })
+    let out = ''
+    child.stdout.on('data', d => { out += d.toString() })
+    child.stderr.on('data', d => { out += d.toString() })
+    child.on('close', code => {
+      adbPath = findAdb()
+      resolve({ ok: code === 0, log: out, adbPath })
+    })
+    child.on('error', err => resolve({ ok: false, log: err.message, adbPath }))
+  })
+})
+
+async function doAdbMdns() {
+  if (!adbPath) return { ok: false, error: 'adb_not_found', devices: [] }
+  try {
+    const { stdout } = await runAdbSpawn(['mdns', 'services'], { timeoutMs: 10000 })
+    const devices = []
+    const seen = new Set()
+    for (const line of stdout.split('\n')) {
+      const m = line.match(/^\s*_adb-tls-connect\._tcp\s+(\S+):(\d+)\s*$/)
+      if (m) {
+        const ip = m[1]
+        const port = parseInt(m[2])
+        const key = `${ip}:${port}`
+        if (!seen.has(key)) {
+          seen.add(key)
+          devices.push({ ip, port, id: key })
+        }
+      }
+    }
+    return { ok: true, devices }
+  } catch (err) {
+    const msg = err.message || ''
+    if (/timed out/i.test(msg)) {
+      return { ok: false, error: 'mDNS scan timed out. Make sure both devices are on the same WiFi.', devices: [] }
+    }
+    return { ok: false, error: msg, devices: [] }
+  }
+}
+
+async function doAdbPair(ip, port, code) {
+  if (!adbPath) return { ok: false, error: 'adb_not_found' }
+  if (!ip || !port || !code) return { ok: false, error: 'Missing ip/port/code' }
+  try {
+    const { stdout, stderr, exitCode } = await runAdbSpawn(
+      ['pair', `${ip}:${port}`, code],
+      { timeoutMs: 30000, stdinData: code }
+    )
+    const out = (stdout + ' ' + stderr).trim()
+    if (/Successfully paired/i.test(out)) {
+      return { ok: true, message: out }
+    }
+    if (/already paired|already connected/i.test(out)) {
+      return { ok: true, message: 'Already paired with this device.' }
+    }
+    return { ok: false, error: out || `Pairing failed (exit code ${exitCode})` }
+  } catch (err) {
+    const msg = (err.message || '').toString().trim()
+    if (/timed out/i.test(msg)) {
+      return {
+        ok: false,
+        error: 'Pairing timed out. The most common causes:\n• The "Pair device with code" dialog on your phone closed (it only stays open ~30s). Reopen it and try again.\n• A firewall on your PC is blocking the outgoing connection.\n• Your PC and phone are on different WiFi networks or VLANs.'
+      }
+    }
+    return { ok: false, error: msg || 'Pairing failed' }
+  }
+}
+
+async function doAdbConnect(ip, port) {
+  if (!adbPath) return { ok: false, error: 'adb_not_found' }
+  if (!ip || !port) return { ok: false, error: 'Missing ip/port' }
+  const target = `${ip}:${port}`
+  try {
+    const { stdout, stderr } = await runAdbSpawn(['connect', target], { timeoutMs: 15000 })
+    const out = (stdout + ' ' + stderr).trim()
+    if (/connected to|already connected/i.test(out)) {
+      const { stdout: devOut } = await runAdbSpawn(['devices', '-l'], { timeoutMs: 10000 })
+      const lines = devOut.split('\n').slice(1).filter(l => l.includes(target) && l.includes('device') && !l.includes('offline'))
+      const parts = lines[0]?.split(/\s+/) || []
+      return {
+        ok: true,
+        device: {
+          id: parts[0] || target,
+          model: parts.find(p => p.startsWith('model:'))?.replace('model:', '') || 'Unknown',
+          transport: 'wifi'
+        }
+      }
+    }
+    return { ok: false, error: out || 'Connect failed' }
+  } catch (err) {
+    const msg = (err.message || '').toString().trim()
+    if (/timed out/i.test(msg)) {
+      return {
+        ok: false,
+        error: 'Connect timed out. Make sure wireless debugging is enabled on the phone and the port is current (it changes on reboot).'
+      }
+    }
+    return { ok: false, error: msg || 'Connect failed' }
+  }
+}
+
+ipcMain.handle('adb:wifi:mdns', async () => doAdbMdns())
+
+ipcMain.handle('adb:wifi:pair', async (_, ip, port, code) => doAdbPair(ip, port, code))
+
+ipcMain.handle('adb:wifi:connect', async (_, ip, port) => doAdbConnect(ip, port))
+
+ipcMain.handle('adb:wifi:disconnect', async (_, target) => {
+  if (!adbPath) return { ok: false, error: 'adb_not_found' }
+  try {
+    const args = target ? ['disconnect', target] : ['disconnect']
+    await runAdbSpawn(args, { timeoutMs: 10000 })
+    return { ok: true }
+  } catch (err) {
+    return { ok: false, error: err.message }
+  }
+})
+
+async function doPairAndConnect(ip, pairPort, code) {
+  const pairRes = await doAdbPair(ip, pairPort, code)
+  if (!pairRes.ok) return pairRes
+  const mdnsRes = await doAdbMdns()
+  const match = mdnsRes.devices?.find(d => d.ip === ip)
+  if (match) {
+    return await doAdbConnect(match.ip, match.port)
+  }
+  return { ok: true, paired: true, message: 'Paired. Tap the device in the reconnect list to connect.', connectPort: null }
+}
+
+ipcMain.handle('adb:wifi:pairAndConnect', async (_, ip, pairPort, code) => doPairAndConnect(ip, pairPort, code))
+// ---------- end ADB WiFi ----------
 
 // ---------- Quick Share IPC handlers ----------
 ipcMain.handle('share:start', async (_, opts) => {

@@ -36,9 +36,14 @@ function download(url, dest) {
 }
 
 async function main() {
-  if (fs.existsSync(ADB_PATH)) {
+  const force = process.argv.includes('--force')
+  if (fs.existsSync(ADB_PATH) && !force) {
     console.log(`ADB already at ${ADB_PATH}`)
     return
+  }
+  if (force && fs.existsSync(ADB_PATH)) {
+    console.log(`Re-downloading ADB (forced)...`)
+    try { fs.unlinkSync(ADB_PATH) } catch {}
   }
 
   const url = URLS[PLATFORM]

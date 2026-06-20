@@ -8,6 +8,17 @@ contextBridge.exposeInMainWorld('api', {
   pickFolder: () => ipcRenderer.invoke('dialog:pickFolder'),
   checkPCForFiles: (destPath, phoneFiles) => ipcRenderer.invoke('files:checkPC', destPath, phoneFiles),
 
+  adbVersion: () => ipcRenderer.invoke('adb:version'),
+  redownloadAdb: () => ipcRenderer.invoke('adb:redownload'),
+
+  wifi: {
+    mdns: () => ipcRenderer.invoke('adb:wifi:mdns'),
+    pair: (ip, port, code) => ipcRenderer.invoke('adb:wifi:pair', ip, port, code),
+    connect: (ip, port) => ipcRenderer.invoke('adb:wifi:connect', ip, port),
+    disconnect: (target) => ipcRenderer.invoke('adb:wifi:disconnect', target),
+    pairAndConnect: (ip, pairPort, code) => ipcRenderer.invoke('adb:wifi:pairAndConnect', ip, pairPort, code)
+  },
+
   share: {
     start: (opts) => ipcRenderer.invoke('share:start', opts),
     stop: () => ipcRenderer.invoke('share:stop'),

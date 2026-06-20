@@ -1,4 +1,4 @@
-import { AlertTriangle, Smartphone, AlertCircle, RefreshCw } from 'lucide-react'
+import { AlertTriangle, Smartphone, AlertCircle, RefreshCw, Wifi } from 'lucide-react'
 
 const SETUP_CONTENT = {
   checking: {
@@ -35,7 +35,7 @@ const SETUP_CONTENT = {
   }
 }
 
-export function SetupGuide({ status }) {
+export function SetupGuide({ status, onWifiConnect }) {
   const content = SETUP_CONTENT[status] || SETUP_CONTENT.adb_error
   const Icon = content.icon
 
@@ -83,6 +83,18 @@ export function SetupGuide({ status }) {
             <li>Accept the <strong>RSA key fingerprint</strong> prompt on your phone</li>
           </ol>
           <p className="text-xs text-zinc-400 mt-4">After connecting, the app will detect your phone automatically.</p>
+
+          <div className="mt-5 pt-5 border-t border-zinc-200 dark:border-zinc-700">
+            <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-3">
+              Prefer wireless? Connect over WiFi instead — no cable needed (Android 11+).
+            </p>
+            <button
+              onClick={onWifiConnect}
+              className="btn-secondary flex items-center gap-2"
+            >
+              <Wifi className="w-4 h-4" /> Connect via WiFi
+            </button>
+          </div>
         </div>
       )}
     </div>
