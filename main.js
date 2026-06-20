@@ -1,16 +1,24 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const path = require('path')
 const fs = require('fs')
-const { exec } = require('child_process')
-const util = require('util')
-const execPromise = util.promisify(exec)
+const { execFile, exec } = require('child_process')
+const { promisify } = require('util')
+const execFilePromise = promisify(execFile)
+const execPromise = promisify(exec)
 
 let mainWindow
 let adbPath = 'adb'
+const isDev = process.argv.includes('--dev')
 
 function findAdb() {
   const bundled = path.join(__dirname, 'bin', process.platform === 'win32' ? 'adb.exe' : 'adb')
   if (fs.existsSync(bundled)) return bundled
+
+  try {
+    const { stdout } = require('child_process').execSync('which adb', { stdio: 'pipe' })
+    const found = stdout.toString().trim()
+    if (found && fs.existsSync(found)) return found
+  } catch {}
 
   try {
     require('child_process').execSync('adb --version', { stdio: 'pipe' })
@@ -32,7 +40,12 @@ function createWindow() {
       nodeIntegration: false
     }
   })
-  mainWindow.loadFile(path.join(__dirname, 'renderer', 'index.html'))
+
+  if (isDev) {
+    mainWindow.loadURL('http://localhost:5173')
+  } else {
+    mainWindow.loadFile(path.join(__dirname, 'dist-renderer', 'index.html'))
+  }
 }
 
 app.whenReady().then(() => {
@@ -45,8 +58,7 @@ app.on('window-all-closed', () => {
 })
 
 function adb(...args) {
-  const cmd = [`"${adbPath}"`, ...args].join(' ')
-  return execPromise(cmd)
+  return execPromise(`${adbPath} ${args.join(' ')}`)
 }
 
 function safeAdb(...args) {
@@ -54,7 +66,8 @@ function safeAdb(...args) {
 }
 
 function adbShell(deviceId, command) {
-  return adb('-s', deviceId, 'shell', `'${command}'`)
+  const cmd = `${adbPath} -s ${deviceId} shell '${command}'`
+  return execPromise(cmd)
 }
 
 function safeAdbShell(deviceId, command) {
@@ -80,7 +93,8 @@ ipcMain.handle('adb:status', async () => {
         model: parts.find(p => p.startsWith('model:'))?.replace('model:', '') || 'Unknown'
       }
     }
-  } catch {
+  } catch (err) {
+    console.error('[ADB] Error:', err)
     return { available: false, error: 'adb_error', device: null }
   }
 })
@@ -157,7 +171,8 @@ function parseLsRecursive(output) {
 
 ipcMain.handle('adb:pull', async (_, deviceId, src, dest) => {
   fs.mkdirSync(path.dirname(dest), { recursive: true })
-  await adb('-s', deviceId, 'pull', `"${src}"`, `"${dest}"`)
+  const cmd = `${adbPath} -s ${deviceId} pull "${src}" "${dest}"`
+  await execPromise(cmd)
 })
 
 ipcMain.handle('dialog:pickFolder', async () => {
@@ -165,4 +180,49 @@ ipcMain.handle('dialog:pickFolder', async () => {
     properties: ['openDirectory']
   })
   return result.canceled ? null : result.filePaths[0]
+})
+
+ipcMain.handle('files:checkPC', async (_, destPath, phoneFiles) => {
+  const existingOnPC = new Map()
+  const searchQueue = [destPath]
+
+  while (searchQueue.length > 0) {
+    const currentPath = searchQueue.pop()
+    let entries
+    try {
+      entries = fs.readdirSync(currentPath, { withFileTypes: true })
+    } catch {
+      continue
+    }
+
+    for (const entry of entries) {
+      const fullPath = path.join(currentPath, entry.name)
+      if (entry.isDirectory()) {
+        searchQueue.push(fullPath)
+      } else if (entry.isFile()) {
+        try {
+          const stats = fs.statSync(fullPath)
+          const key = `${entry.name}_${stats.size}`
+          if (!existingOnPC.has(key)) {
+            existingOnPC.set(key, [])
+          }
+          existingOnPC.get(key).push(fullPath)
+        } catch {
+        }
+      }
+    }
+  }
+
+  const result = []
+  for (const pf of phoneFiles) {
+    const key = `${path.basename(pf.path)}_${pf.size}`
+    const matches = existingOnPC.get(key) || []
+    result.push({
+      phonePath: pf.path,
+      size: pf.size,
+      existsOnPC: matches.length > 0,
+      pcPaths: matches
+    })
+  }
+  return result
 })

@@ -6,9 +6,21 @@
   "scripts": {
     "postinstall": "node scripts/download-adb.js",
     "start": "electron .",
-    "dev": "electron ."
+    "dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron . --dev\"",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@headlessui/react": "^2.2.0",
+    "lucide-react": "^0.468.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "electron": "^33.4.11"
+    "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^9.1.2",
+    "electron": "^33.4.11",
+    "vite": "^6.0.7",
+    "wait-on": "^8.0.3"
   }
 }

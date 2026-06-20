@@ -1,4 +1,4 @@
-class SyncDB {
+export class SyncDB {
   constructor(dbName = 'PhoneSync') {
     this.dbName = dbName
     this.db = null
