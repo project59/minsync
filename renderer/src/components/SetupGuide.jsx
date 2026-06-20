@@ -3,9 +3,9 @@ import { AlertTriangle, Smartphone, AlertCircle, RefreshCw } from 'lucide-react'
 const SETUP_CONTENT = {
   checking: {
     icon: RefreshCw,
-    iconColor: 'text-gray-500',
-    bgColor: 'bg-gray-50 dark:bg-zinc-800',
-    borderColor: 'border-gray-200 dark:border-zinc-700',
+    iconColor: 'text-zinc-500',
+    bgColor: 'bg-zinc-50 dark:bg-zinc-800',
+    borderColor: 'border-zinc-200 dark:border-zinc-700',
     title: 'Checking for phone...',
     description: 'Looking for a connected device.'
   },
@@ -51,15 +51,15 @@ export function SetupGuide({ status }) {
           <Icon className={`w-6 h-6 ${content.iconColor} flex-shrink-0 mt-0.5${status === 'checking' ? ' animate-spin' : ''}`} />
           <div>
             <h2 className="text-lg font-semibold mb-1">{content.title}</h2>
-            <p className="text-sm text-gray-600 dark:text-gray-300">{content.description}</p>
+            <p className="text-sm text-zinc-600 dark:text-zinc-300">{content.description}</p>
           </div>
         </div>
       </div>
 
       {status === 'adb_not_found' && (
-        <div className="bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 p-5">
+        <div className="bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 p-5">
           <p className="font-medium mb-3">Install ADB manually:</p>
-          <ol className="list-decimal ml-5 space-y-2 text-sm text-gray-600 dark:text-gray-300">
+          <ol className="list-decimal ml-5 space-y-2 text-sm text-zinc-600 dark:text-zinc-300">
             <li>
               Download <a href="https://developer.android.com/studio/releases/platform-tools" target="_blank" className="text-primary underline">Android Platform Tools</a>
             </li>
@@ -71,9 +71,9 @@ export function SetupGuide({ status }) {
       )}
 
       {status === 'no_device' && (
-        <div className="bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 p-5">
+        <div className="bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 p-5">
           <p className="font-medium mb-3">One-time setup on your Android phone:</p>
-          <ol className="list-decimal ml-5 space-y-2 text-sm text-gray-600 dark:text-gray-300">
+          <ol className="list-decimal ml-5 space-y-2 text-sm text-zinc-600 dark:text-zinc-300">
             <li>Open <strong>Settings → About phone</strong></li>
             <li>Tap <strong>"Build number"</strong> 7 times (you'll see "You are now a developer")</li>
             <li>Go back → <strong>System → Developer options</strong></li>
@@ -82,7 +82,7 @@ export function SetupGuide({ status }) {
             <li>Set the USB mode to <strong>"File transfer"</strong></li>
             <li>Accept the <strong>RSA key fingerprint</strong> prompt on your phone</li>
           </ol>
-          <p className="text-xs text-gray-400 mt-4">After connecting, the app will detect your phone automatically.</p>
+          <p className="text-xs text-zinc-400 mt-4">After connecting, the app will detect your phone automatically.</p>
         </div>
       )}
     </div>

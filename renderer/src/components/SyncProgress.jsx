@@ -8,7 +8,7 @@ export function SyncProgress({ result }) {
           {result ? result.newFiles.length + ' files remaining' : 'Syncing...'}
         </span>
       </div>
-      <div className="w-full bg-gray-200 dark:bg-zinc-700 h-2.5">
+      <div className="w-full bg-zinc-200 dark:bg-zinc-700 h-2.5">
         <div className="bg-primary h-2.5 transition-all duration-300 animate-pulse" style={{ width: '100%' }} />
       </div>
     </div>

@@ -6,7 +6,7 @@ export function ScanPreview({ result, onSync, onCancel }) {
   const sizeMB = (totalSize / (1024 * 1024)).toFixed(1)
 
   return (
-    <div className="bg-white dark:bg-zinc-800 border p-5 mb-6">
+    <div className="bg-white dark:bg-zinc-900 border-primary p-5 mb-6">
       <h2 className="font-semibold mb-4">Scan results</h2>
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div className="bg-blue-50 dark:bg-zinc-900 p-4 text-center">
@@ -14,7 +14,7 @@ export function ScanPreview({ result, onSync, onCancel }) {
             <FilePlus className="w-5 h-5 text-blue-600" />
             <span className="text-2xl font-bold text-blue-600">{newFiles.length}</span>
           </div>
-          <span className="text-xs text-gray-500 dark:text-gray-400">New files to copy</span>
+          <span className="text-xs text-zinc-500 dark:text-zinc-400">New files to copy</span>
           {newFiles.length > 0 && (
             <div className="text-xs text-blue-600 mt-1 font-medium">{sizeMB} MB</div>
           )}
@@ -24,12 +24,12 @@ export function ScanPreview({ result, onSync, onCancel }) {
             <CheckCircle className="w-5 h-5 text-green-600" />
             <span className="text-2xl font-bold text-green-600">{existingFiles.length}</span>
           </div>
-          <span className="text-xs text-gray-500 dark:text-gray-400">Already on PC</span>
+          <span className="text-xs text-zinc-500 dark:text-zinc-400">Already on PC</span>
         </div>
       </div>
 
       {existingFiles.length > 0 && (
-        <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+        <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-4">
           {existingFiles.length} files will be skipped (found elsewhere in destination folder)
         </p>
       )}
