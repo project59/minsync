@@ -19,8 +19,8 @@ const SETUP_CONTENT = {
   },
   no_device: {
     icon: Smartphone,
-    iconColor: 'text-blue-600',
-    bgColor: 'bg-blue-50 dark:bg-zinc-800',
+    iconColor: 'text-blue-100',
+    bgColor: 'bg-blue-600 dark:bg-zinc-600',
     borderColor: 'border-blue-200 dark:border-blue-900',
     title: 'Phone not detected',
     description: 'Connect your phone to get started.'
@@ -40,13 +40,13 @@ export function SetupGuide({ status, onWifiConnect }) {
   const Icon = content.icon
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className={`${content.bgColor} border ${content.borderColor} p-6 mb-6`}>
+    <div className="">
+      <div className={`${content.bgColor} rounded-lg p-6 mb-6`}>
         <div className="flex items-start gap-3">
-          <Icon className={`w-6 h-6 ${content.iconColor} flex-shrink-0 mt-0.5${status === 'checking' ? ' animate-spin' : ''}`} />
+          <Icon className={`w-6 h-6 ${content.iconColor} shrink-0 mt-0.5${status === 'checking' ? ' animate-spin' : ''}`} />
           <div>
-            <h2 className="text-lg font-semibold mb-1">{content.title}</h2>
-            <p className="text-sm text-zinc-600 dark:text-zinc-300">{content.description}</p>
+            <h2 className="text-lg font-semibold text-white dark:text-black mb-1">{content.title}</h2>
+            <p className="text-sm text-white">{content.description}</p>
           </div>
         </div>
       </div>
@@ -66,9 +66,9 @@ export function SetupGuide({ status, onWifiConnect }) {
       )}
 
       {status === 'no_device' && (
-        <div className="bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 p-5">
-          <p className="font-medium mb-3">One-time setup on your Android phone:</p>
-          <ol className="list-decimal ml-5 space-y-2 text-sm text-zinc-600 dark:text-zinc-300">
+        <div className="rounded-lg bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 p-5">
+          <p className="font-semibold mb-3">One-time setup on your Android phone:</p>
+          <ol className="list-decimal ml-5 space-y-2 text-sm text-slate-800 dark:text-slate-200">
             <li>Open <strong>Settings → About phone</strong></li>
             <li>Tap <strong>"Build number"</strong> 7 times (you'll see "You are now a developer")</li>
             <li>Go back → <strong>System → Developer options</strong></li>

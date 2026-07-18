@@ -154,10 +154,10 @@ export function QuickShare() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white dark:bg-zinc-900 border-primary p-5">
+      <div className="bg-white dark:bg-slate-900 border-primary p-5">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            {running ? <Wifi className="w-5 h-5 text-emerald-500" /> : <WifiOff className="w-5 h-5 text-zinc-400" />}
+            {running ? <Wifi className="w-5 h-5 text-emerald-500" /> : <WifiOff className="w-5 h-5 text-slate-400" />}
             <h2 className="font-semibold">Quick Share</h2>
           </div>
           {running ? (
@@ -165,37 +165,37 @@ export function QuickShare() {
               <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" /> Live on port {port}
             </span>
           ) : (
-            <span className="text-xs text-zinc-400">Not running</span>
+            <span className="text-xs text-slate-400">Not running</span>
           )}
         </div>
 
-        <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4">
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
           Start a wireless server on your PC. Scan the QR code with your phone's camera to open
           a web page for sending/receiving files — no app install needed, works on any phone with a browser on the same WiFi.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
           <div>
-            <label className="text-xs text-zinc-500 mb-1 block">Receive folder (phone → PC)</label>
+            <label className="text-xs text-slate-500 mb-1 block">Receive folder (phone → PC)</label>
             <div className="flex gap-2">
               <input
                 type="text"
                 value={receiveDir}
                 onChange={(e) => setReceiveDir(e.target.value)}
-                className="flex-1 border px-3 py-2 text-sm bg-zinc-50 dark:bg-zinc-900 dark:text-white dark:border-zinc-700 font-mono"
+                className="flex-1 border px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 dark:text-white dark:border-slate-700 font-mono"
                 placeholder="Where uploads from phone will land"
               />
               <button onClick={handlePickReceive} className="btn-secondary"><FolderOpen className="w-4 h-4" /></button>
             </div>
           </div>
           <div>
-            <label className="text-xs text-zinc-500 mb-1 block">Share folder (PC → phone)</label>
+            <label className="text-xs text-slate-500 mb-1 block">Share folder (PC → phone)</label>
             <div className="flex gap-2">
               <input
                 type="text"
                 value={shareDir}
                 onChange={(e) => setShareDir(e.target.value)}
-                className="flex-1 border px-3 py-2 text-sm bg-zinc-50 dark:bg-zinc-900 dark:text-white dark:border-zinc-700 font-mono"
+                className="flex-1 border px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 dark:text-white dark:border-slate-700 font-mono"
                 placeholder="Files the phone can browse/download"
               />
               <button onClick={handlePickShare} className="btn-secondary"><FolderOpen className="w-4 h-4" /></button>
@@ -207,7 +207,7 @@ export function QuickShare() {
 
         <div className="flex gap-3">
           {!running ? (
-            <button onClick={handleStart} disabled={busy || !receiveDir || !shareDir} className="btn-action flex-1 py-3 flex items-center justify-center gap-2">
+            <button onClick={handleStart} disabled={busy || !receiveDir || !shareDir} className="btn-action flex items-center gap-2 justify-center">
               {busy && <RefreshCw className="w-4 h-4 animate-spin" />}
               <Wifi className="w-4 h-4" /> Start sharing
             </button>
@@ -221,38 +221,38 @@ export function QuickShare() {
 
       {running && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white dark:bg-zinc-900 border-primary p-5">
+          <div className="bg-white dark:bg-slate-900 border-primary p-5">
             <div className="flex items-center gap-2 mb-4">
-              <QrCode className="w-5 h-5 text-zinc-400" />
+              <QrCode className="w-5 h-5 text-slate-400" />
               <h3 className="font-semibold">Scan with phone</h3>
             </div>
             <div className="flex flex-col items-center">
               {qrSvg ? (
                 <div
-                  className="bg-white p-3 border border-zinc-200 dark:border-zinc-700"
+                  className="bg-white p-3 border border-slate-200 dark:border-slate-700"
                   dangerouslySetInnerHTML={{ __html: qrSvg }}
                   style={{ width: 232, height: 232 }}
                 />
               ) : (
-                <div className="w-[232px] h-[232px] flex items-center justify-center text-zinc-400 text-sm">
+                <div className="w-[232px] h-[232px] flex items-center justify-center text-slate-400 text-sm">
                   Generating…
                 </div>
               )}
               <div className="flex items-center gap-2 mt-3 w-full">
-                <code className="flex-1 text-xs font-mono px-3 py-2 bg-zinc-100 dark:bg-zinc-800 dark:text-zinc-300 truncate">{qrUrl}</code>
+                <code className="flex-1 text-xs font-mono px-3 py-2 bg-slate-100 dark:bg-slate-800 dark:text-slate-300 truncate">{qrUrl}</code>
                 <button onClick={copyUrl} className="btn-secondary p-2" aria-label="Copy URL">
                   {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
                 </button>
               </div>
-              <p className="text-xs text-zinc-400 mt-3 text-center">
+              <p className="text-xs text-slate-400 mt-3 text-center">
                 Make sure your phone is on the same WiFi as this PC.
               </p>
             </div>
           </div>
 
-          <div className="bg-white dark:bg-zinc-900 border-primary p-5">
+          <div className="bg-white dark:bg-slate-900 border-primary p-5">
             <div className="flex items-center gap-2 mb-4">
-              <FileUp className="w-5 h-5 text-zinc-400" />
+              <FileUp className="w-5 h-5 text-slate-400" />
               <h3 className="font-semibold">Quick add to share folder</h3>
             </div>
             <div
@@ -260,7 +260,7 @@ export function QuickShare() {
               onDragOver={(e) => { e.preventDefault(); setDragActive(true) }}
               onDragLeave={(e) => { e.preventDefault(); setDragActive(false) }}
               onDrop={handleDrop}
-              className={`border-2 border-dashed p-8 text-center text-sm transition-colors ${dragActive ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/10 text-emerald-600' : 'border-zinc-300 dark:border-zinc-700 text-zinc-500'}`}
+              className={`border-2 border-dashed p-8 text-center text-sm transition-colors ${dragActive ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/10 text-emerald-600' : 'border-slate-300 dark:border-slate-700 text-slate-500'}`}
             >
               {busy ? <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2" /> : <Upload className="w-5 h-5 mx-auto mb-2" />}
               Drag &amp; drop files here to copy into the share folder
@@ -271,41 +271,41 @@ export function QuickShare() {
 
       {running && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white dark:bg-zinc-900 border-primary p-5">
+          <div className="bg-white dark:bg-slate-900 border-primary p-5">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <FileDown className="w-5 h-5 text-zinc-400" />
+                <FileDown className="w-5 h-5 text-slate-400" />
                 <h3 className="font-semibold">Files phone can download</h3>
               </div>
               <button onClick={refreshPcFiles} className="btn-secondary p-2"><RefreshCw className="w-4 h-4" /></button>
             </div>
             {pcFiles.length === 0 ? (
-              <p className="text-zinc-400 italic text-sm">Share folder is empty. Drop files above.</p>
+              <p className="text-slate-400 italic text-sm">Share folder is empty. Drop files above.</p>
             ) : (
-              <ul className="divide-y dark:divide-zinc-700 max-h-72 overflow-auto">
+              <ul className="divide-y dark:divide-slate-700 max-h-72 overflow-auto">
                 {pcFiles.map(f => (
                   <li key={f.path} className="flex items-center justify-between py-2 text-sm">
-                    <span className="truncate flex-1 font-mono text-zinc-700 dark:text-zinc-300">{f.path}</span>
-                    <span className="text-zinc-400 text-xs ml-3 whitespace-nowrap">{humanSize(f.size)}</span>
+                    <span className="truncate flex-1 font-mono text-slate-700 dark:text-slate-300">{f.path}</span>
+                    <span className="text-slate-400 text-xs ml-3 whitespace-nowrap">{humanSize(f.size)}</span>
                   </li>
                 ))}
               </ul>
             )}
           </div>
 
-          <div className="bg-white dark:bg-zinc-900 border-primary p-5">
+          <div className="bg-white dark:bg-slate-900 border-primary p-5">
             <div className="flex items-center gap-2 mb-3">
-              <FileUp className="w-5 h-5 text-zinc-400" />
+              <FileUp className="w-5 h-5 text-slate-400" />
               <h3 className="font-semibold">Received from phone</h3>
             </div>
             {received.length === 0 ? (
-              <p className="text-zinc-400 italic text-sm">No files received yet.</p>
+              <p className="text-slate-400 italic text-sm">No files received yet.</p>
             ) : (
-              <ul className="divide-y dark:divide-zinc-700 max-h-72 overflow-auto">
+              <ul className="divide-y dark:divide-slate-700 max-h-72 overflow-auto">
                 {received.map((r, i) => (
                   <li key={i} className="flex items-center justify-between py-2 text-sm">
-                    <span className="truncate flex-1 font-mono text-zinc-700 dark:text-zinc-300">{r.name}</span>
-                    <span className="text-zinc-400 text-xs ml-3 whitespace-nowrap">{humanSize(r.size)}</span>
+                    <span className="truncate flex-1 font-mono text-slate-700 dark:text-slate-300">{r.name}</span>
+                    <span className="text-slate-400 text-xs ml-3 whitespace-nowrap">{humanSize(r.size)}</span>
                   </li>
                 ))}
               </ul>
@@ -315,16 +315,16 @@ export function QuickShare() {
       )}
 
       {running && downloads.length > 0 && (
-        <div className="bg-white dark:bg-zinc-900 border-primary p-5">
+        <div className="bg-white dark:bg-slate-900 border-primary p-5">
           <div className="flex items-center gap-2 mb-3">
-            <Download className="w-5 h-5 text-zinc-400" />
+            <Download className="w-5 h-5 text-slate-400" />
             <h3 className="font-semibold">Recent phone downloads</h3>
           </div>
-          <ul className="divide-y dark:divide-zinc-700">
+          <ul className="divide-y dark:divide-slate-700">
             {downloads.slice(0, 10).map((d, i) => (
               <li key={i} className="flex items-center justify-between py-2 text-sm">
-                <span className="truncate flex-1 font-mono text-zinc-700 dark:text-zinc-300">{d.name}</span>
-                <span className="text-zinc-400 text-xs ml-3">{humanSize(d.size)}</span>
+                <span className="truncate flex-1 font-mono text-slate-700 dark:text-slate-300">{d.name}</span>
+                <span className="text-slate-400 text-xs ml-3">{humanSize(d.size)}</span>
               </li>
             ))}
           </ul>
@@ -332,14 +332,14 @@ export function QuickShare() {
       )}
 
       {log.length > 0 && (
-        <div className="bg-white dark:bg-zinc-900 border-primary p-5">
+        <div className="bg-white dark:bg-slate-900 border-primary p-5">
           <div className="flex items-center justify-between mb-2">
             <h3 className="font-semibold text-sm">Activity log</h3>
             <button onClick={() => setLog([])} className="btn-secondary p-1.5"><X className="w-3.5 h-3.5" /></button>
           </div>
-          <div ref={logRef} className="text-xs font-mono space-y-1 max-h-40 overflow-auto text-zinc-600 dark:text-zinc-400">
+          <div ref={logRef} className="text-xs font-mono space-y-1 max-h-40 overflow-auto text-slate-600 dark:text-slate-400">
             {log.map((l, i) => (
-              <div key={i}><span className="text-zinc-400">[{l.time}]</span> {l.msg}</div>
+              <div key={i}><span className="text-slate-400">[{l.time}]</span> {l.msg}</div>
             ))}
           </div>
         </div>

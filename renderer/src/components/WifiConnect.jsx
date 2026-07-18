@@ -121,10 +121,10 @@ export function WifiConnect({ onClose, onConnected, db }) {
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={onClose}>
       <div
-        className="bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 max-w-lg w-full max-h-[90vh] overflow-auto"
+        className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 max-w-lg w-full max-h-[90vh] overflow-auto"
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-4 border-b dark:border-zinc-700">
+        <div className="flex items-center justify-between p-4 border-b dark:border-slate-700">
           <div className="flex items-center gap-2">
             <Wifi className="w-5 h-5 text-emerald-500" />
             <h2 className="font-semibold">Connect via WiFi</h2>
@@ -134,7 +134,7 @@ export function WifiConnect({ onClose, onConnected, db }) {
 
         <div className="p-4">
           {!version && (
-            <div className="flex items-center justify-center py-8 text-sm text-zinc-400">
+            <div className="flex items-center justify-center py-8 text-sm text-slate-400">
               <RefreshCw className="w-4 h-4 animate-spin mr-2" /> Checking ADB version…
             </div>
           )}
@@ -187,13 +187,13 @@ export function WifiConnect({ onClose, onConnected, db }) {
             <div className="flex gap-2 mb-4">
               <button
                 onClick={() => setTab('pair')}
-                className={`flex-1 py-2 text-sm font-mono font-medium cursor-pointer border flex items-center justify-center gap-2 ${tab === 'pair' ? 'bg-zinc-100 dark:bg-zinc-800 border-emerald-400 text-emerald-600 dark:text-emerald-400' : 'bg-transparent text-zinc-700 border-zinc-300 hover:bg-zinc-100 dark:text-zinc-200 dark:border-zinc-600 dark:hover:bg-zinc-800'}`}
+                className={`flex-1 py-2 text-sm font-mono font-medium cursor-pointer border flex items-center justify-center gap-2 ${tab === 'pair' ? 'bg-slate-100 dark:bg-slate-800 border-emerald-400 text-emerald-600 dark:text-emerald-400' : 'bg-transparent text-slate-700 border-slate-300 hover:bg-slate-100 dark:text-slate-200 dark:border-slate-600 dark:hover:bg-slate-800'}`}
               >
                 <Link2 className="w-4 h-4" /> Pair new
               </button>
               <button
                 onClick={() => { setTab('reconnect'); refreshMdns() }}
-                className={`flex-1 py-2 text-sm font-mono font-medium cursor-pointer border flex items-center justify-center gap-2 ${tab === 'reconnect' ? 'bg-zinc-100 dark:bg-zinc-800 border-emerald-400 text-emerald-600 dark:text-emerald-400' : 'bg-transparent text-zinc-700 border-zinc-300 hover:bg-zinc-100 dark:text-zinc-200 dark:border-zinc-600 dark:hover:bg-zinc-800'}`}
+                className={`flex-1 py-2 text-sm font-mono font-medium cursor-pointer border flex items-center justify-center gap-2 ${tab === 'reconnect' ? 'bg-slate-100 dark:bg-slate-800 border-emerald-400 text-emerald-600 dark:text-emerald-400' : 'bg-transparent text-slate-700 border-slate-300 hover:bg-slate-100 dark:text-slate-200 dark:border-slate-600 dark:hover:bg-slate-800'}`}
               >
                 <Search className="w-4 h-4" /> Reconnect
               </button>
@@ -202,8 +202,8 @@ export function WifiConnect({ onClose, onConnected, db }) {
 
           {version && supportsWifi && tab === 'pair' && (
             <div>
-              <div className="text-xs text-zinc-500 dark:text-zinc-400 mb-3 space-y-1">
-                <p className="font-medium text-zinc-700 dark:text-zinc-300">On your phone (Android 11+):</p>
+              <div className="text-xs text-slate-500 dark:text-slate-400 mb-3 space-y-1">
+                <p className="font-medium text-slate-700 dark:text-slate-300">On your phone (Android 11+):</p>
                 <ol className="list-decimal ml-5 space-y-1">
                   <li>Settings → System → Developer options → <strong>Wireless debugging</strong></li>
                   <li>Tap <strong>Pair device with code</strong></li>
@@ -214,33 +214,33 @@ export function WifiConnect({ onClose, onConnected, db }) {
               <form onSubmit={handlePairAndConnect} className="space-y-3">
                 <div className="grid grid-cols-3 gap-2">
                   <div className="col-span-2">
-                    <label className="text-xs text-zinc-500 block mb-1">Phone IP</label>
+                    <label className="text-xs text-slate-500 block mb-1">Phone IP</label>
                     <input
                       value={pairIp}
                       onChange={e => setPairIp(e.target.value)}
                       placeholder="192.168.1.50"
-                      className="w-full border px-3 py-2 text-sm bg-zinc-50 dark:bg-zinc-900 dark:text-white dark:border-zinc-700 font-mono"
+                      className="w-full border px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 dark:text-white dark:border-slate-700 font-mono"
                       autoFocus
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-zinc-500 block mb-1">Pair port</label>
+                    <label className="text-xs text-slate-500 block mb-1">Pair port</label>
                     <input
                       value={pairPort}
                       onChange={e => setPairPort(e.target.value)}
                       placeholder="37553"
-                      className="w-full border px-3 py-2 text-sm bg-zinc-50 dark:bg-zinc-900 dark:text-white dark:border-zinc-700 font-mono"
+                      className="w-full border px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 dark:text-white dark:border-slate-700 font-mono"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="text-xs text-zinc-500 block mb-1">6-digit pairing code</label>
+                  <label className="text-xs text-slate-500 block mb-1">6-digit pairing code</label>
                   <input
                     value={pairCode}
                     onChange={e => setPairCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                     placeholder="123456"
                     inputMode="numeric"
-                    className="w-full border px-3 py-2 text-sm bg-zinc-50 dark:bg-zinc-900 dark:text-white dark:border-zinc-700 font-mono tracking-widest"
+                    className="w-full border px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 dark:text-white dark:border-slate-700 font-mono tracking-widest"
                   />
                 </div>
 
@@ -259,7 +259,7 @@ export function WifiConnect({ onClose, onConnected, db }) {
                   {pairBusy && <RefreshCw className="w-4 h-4 animate-spin" />}
                   {pairBusy ? 'Pairing…' : 'Pair & connect'}
                 </button>
-                <p className="text-xs text-zinc-400 text-center">
+                <p className="text-xs text-slate-400 text-center">
                   Pairing is one-time. Future sessions just need a tap in the Reconnect tab.
                 </p>
               </form>
@@ -269,7 +269,7 @@ export function WifiConnect({ onClose, onConnected, db }) {
           {version && supportsWifi && tab === 'reconnect' && (
             <div>
               <div className="flex items-center justify-between mb-3">
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   Discovered devices on your WiFi
                 </p>
                 <button onClick={refreshMdns} disabled={mdnsScanning} className="btn-secondary p-1.5">
@@ -279,25 +279,25 @@ export function WifiConnect({ onClose, onConnected, db }) {
 
               {lastDevice && (
                 <div className="mb-3">
-                  <p className="text-xs text-zinc-400 mb-1">Last used</p>
+                  <p className="text-xs text-slate-400 mb-1">Last used</p>
                   <button
                     onClick={() => handleConnectByIp(lastDevice.ip, `last-${lastDevice.ip}`)}
                     disabled={connectBusyId === `last-${lastDevice.ip}`}
-                    className="w-full flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:border-emerald-400 text-left"
+                    className="w-full flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-emerald-400 text-left"
                   >
                     <span className="flex items-center gap-2 text-sm">
-                      <Smartphone className="w-4 h-4 text-zinc-400" />
+                      <Smartphone className="w-4 h-4 text-slate-400" />
                       <span className="font-mono">{lastDevice.model || 'Device'}</span>
-                      <span className="text-zinc-400 text-xs">{lastDevice.ip}</span>
+                      <span className="text-slate-400 text-xs">{lastDevice.ip}</span>
                     </span>
-                    {connectBusyId === `last-${lastDevice.ip}` ? <RefreshCw className="w-4 h-4 animate-spin" /> : <ArrowRight className="w-4 h-4 text-zinc-400" />}
+                    {connectBusyId === `last-${lastDevice.ip}` ? <RefreshCw className="w-4 h-4 animate-spin" /> : <ArrowRight className="w-4 h-4 text-slate-400" />}
                   </button>
-                  <p className="text-xs text-zinc-400 mt-1">Scans for this phone's current port and reconnects.</p>
+                  <p className="text-xs text-slate-400 mt-1">Scans for this phone's current port and reconnects.</p>
                 </div>
               )}
 
               {mdnsDevices.length === 0 && !mdnsScanning ? (
-                <div className="text-center py-6 text-sm text-zinc-400">
+                <div className="text-center py-6 text-sm text-slate-400">
                   No devices found. Make sure wireless debugging is enabled on the phone and both devices are on the same WiFi.
                 </div>
               ) : (
@@ -307,13 +307,13 @@ export function WifiConnect({ onClose, onConnected, db }) {
                       <button
                         onClick={() => handleConnect(d.ip, d.port, d.id)}
                         disabled={connectBusyId === d.id}
-                        className="w-full flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:border-emerald-400 text-left"
+                        className="w-full flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-emerald-400 text-left"
                       >
                         <span className="flex items-center gap-2 text-sm font-mono">
-                          <Smartphone className="w-4 h-4 text-zinc-400" />
+                          <Smartphone className="w-4 h-4 text-slate-400" />
                           {d.ip}:{d.port}
                         </span>
-                        {connectBusyId === d.id ? <RefreshCw className="w-4 h-4 animate-spin" /> : <ArrowRight className="w-4 h-4 text-zinc-400" />}
+                        {connectBusyId === d.id ? <RefreshCw className="w-4 h-4 animate-spin" /> : <ArrowRight className="w-4 h-4 text-slate-400" />}
                       </button>
                     </li>
                   ))}
@@ -327,19 +327,19 @@ export function WifiConnect({ onClose, onConnected, db }) {
               )}
 
               <details className="mt-4">
-                <summary className="text-xs text-zinc-500 cursor-pointer hover:text-zinc-700 dark:hover:text-zinc-300">Connect manually instead</summary>
+                <summary className="text-xs text-slate-500 cursor-pointer hover:text-slate-700 dark:hover:text-slate-300">Connect manually instead</summary>
                 <div className="mt-2 flex gap-2">
                   <input
                     value={manualIp}
                     onChange={e => setManualIp(e.target.value)}
                     placeholder="192.168.1.50"
-                    className="flex-1 border px-3 py-2 text-sm bg-zinc-50 dark:bg-zinc-900 dark:text-white dark:border-zinc-700 font-mono"
+                    className="flex-1 border px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 dark:text-white dark:border-slate-700 font-mono"
                   />
                   <input
                     value={manualPort}
                     onChange={e => setManualPort(e.target.value)}
                     placeholder="43525"
-                    className="w-24 border px-3 py-2 text-sm bg-zinc-50 dark:bg-zinc-900 dark:text-white dark:border-zinc-700 font-mono"
+                    className="w-24 border px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 dark:text-white dark:border-slate-700 font-mono"
                   />
                   <button
                     onClick={() => handleConnect(manualIp, manualPort, `manual-${manualIp}:${manualPort}`)}

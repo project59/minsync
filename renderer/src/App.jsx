@@ -182,7 +182,7 @@ export default function App() {
     loadHistory()
 
     if (device?.transport === 'wifi') {
-      try { await window.api.wifi.disconnect(device.id) } catch {}
+      try { await window.api.wifi.disconnect(device.id) } catch { }
       setDevice(null)
       setDeviceStatus('no_device')
       setFolderTree([])
@@ -190,19 +190,19 @@ export default function App() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <header className="flex items-center justify-between mb-6 border-b pb-4 dark:border-zinc-700">
+    <div className="mx-auto p-2">
+      <header className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-3 flex-wrap">
-          <h1 className="text-2xl font-bold font-mono">PhoneSync</h1>
+          <h1 className="text-xl font-semibold text-slate-700 mt-1">Minsync Android</h1>
           {tab === 'backup' && deviceStatus === 'connected' && device && (
-            <div className="flex items-center gap-2 ml-2 pl-4 border-l dark:border-zinc-700">
+            <div className="flex items-center gap-2 ml-2 pl-4 border-l dark:border-slate-700">
               {device.transport === 'wifi' ? (
                 <Wifi className="w-3.5 h-3.5 text-emerald-500" />
               ) : (
                 <Usb className="w-3.5 h-3.5 text-green-500" />
               )}
-              <span className="text-sm text-zinc-600 dark:text-zinc-400">{device.model}</span>
-              <span className="text-xs px-1.5 py-0.5 font-mono uppercase border dark:border-zinc-700 text-zinc-500 dark:text-zinc-400">
+              <span className="text-sm text-slate-600 dark:text-slate-400">{device.model}</span>
+              <span className="text-xs px-1.5 py-0.5 font-mono uppercase border dark:border-slate-700 text-slate-500 dark:text-slate-400">
                 {device.transport || 'usb'}
               </span>
               {device.transport === 'wifi' && (
@@ -222,112 +222,116 @@ export default function App() {
           {tab === 'backup' && deviceStatus !== 'connected' && (
             <button
               onClick={() => setWifiModalOpen(true)}
-              className="btn-secondary py-2 px-3 text-xs flex items-center gap-2"
+              className="btn-secondary"
             >
               <PlugZap className="w-4 h-4" /> Connect WiFi
             </button>
           )}
           <button
             onClick={() => setDarkMode(!darkMode)}
-            className="btn-secondary p-2"
+            className="btn-secondary w-8"
             aria-label="Toggle theme"
           >
-            {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            {darkMode ? <Sun className="w-4 h-4 shrink-0" /> : <Moon className="w-4 h-4 shrink-0" />}
           </button>
         </div>
       </header>
 
-      <div className="flex gap-2 mb-6">
-        <button
-          onClick={() => setTab('backup')}
-          className={`flex-1 py-2 flex items-center justify-center gap-2 text-sm font-mono font-medium cursor-pointer border ${tab === 'backup' ? 'bg-zinc-100 dark:bg-zinc-800 border-emerald-400 text-emerald-600 dark:text-emerald-400' : 'bg-transparent text-zinc-700 border-zinc-300 hover:bg-zinc-100 dark:text-zinc-200 dark:border-zinc-600 dark:hover:bg-zinc-800'}`}
-        >
-          <Database className="w-4 h-4" /> Backup
-        </button>
-        <button
-          onClick={() => setTab('share')}
-          className={`flex-1 py-2 flex items-center justify-center gap-2 text-sm font-mono font-medium cursor-pointer border ${tab === 'share' ? 'bg-zinc-100 dark:bg-zinc-800 border-emerald-400 text-emerald-600 dark:text-emerald-400' : 'bg-transparent text-zinc-700 border-zinc-300 hover:bg-zinc-100 dark:text-zinc-200 dark:border-zinc-600 dark:hover:bg-zinc-800'}`}
-        >
-          <Wifi className="w-4 h-4" /> Quick Share
-        </button>
+      <div className='bg-slate-100 rounded-t-xl p-3'>
+
+        <div className="flex mb-6 border border-slate-600/30 rounded-lg overflow-hidden">
+          <button
+            onClick={() => setTab('backup')}
+            className={`flex-1 py-2 flex items-center justify-center gap-2 text-sm  font-medium cursor-pointer rounded ${tab === 'backup' ? 'bg-white' : ''}`}
+          >
+            <Database className="w-4 h-4" /> Backup
+          </button>
+          <button
+            onClick={() => setTab('share')}
+            className={`flex-1 py-2 flex items-center justify-center gap-2 text-sm font-medium cursor-pointer rounded ${tab === 'share' ? 'bg-white' : ''}`}
+          >
+            <Wifi className="w-4 h-4" /> Quick Share
+          </button>
+        </div>
+
+        {tab === 'share' ? (
+          <QuickShare />
+        ) : deviceStatus !== 'connected' ? (
+          <SetupGuide status={deviceStatus} onWifiConnect={() => setWifiModalOpen(true)} />
+        ) : (
+          <>
+            <div className="bg-white dark:bg-slate-900 border-primary p-5 mb-6">
+              <div className="flex items-center gap-2 mb-4">
+                <FolderOpen className="w-5 h-5 text-slate-400" />
+                <span className="font-medium">Destination folder</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={destPath}
+                  onChange={(e) => setDestPath(e.target.value)}
+                  className="flex-1 border px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 dark:text-white dark:border-slate-700 font-mono"
+                  placeholder="Select a destination folder..."
+                />
+                <button
+                  onClick={handleBrowse}
+                  className="btn-secondary"
+                >
+                  Browse
+                </button>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 border-primary p-5 mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-semibold">Folders to sync</h2>
+                <button
+                  onClick={() => setSelectedFolders([])}
+                  className="btn-secondary"
+                >
+                  Clear all
+                </button>
+              </div>
+              {folderTree.length > 0 ? (
+                <FolderTree
+                  tree={folderTree}
+                  selected={selectedFolders}
+                  onChange={setSelectedFolders}
+                />
+              ) : (
+                <div className="flex items-center justify-center py-8 text-slate-400">
+                  <RefreshCw className="w-5 h-5 animate-spin mr-2" />
+                  Loading folders...
+                </div>
+              )}
+            </div>
+
+            {scanResult && (
+              <ScanPreview
+                result={scanResult}
+                onSync={handleSync}
+                onCancel={() => setScanResult(null)}
+              />
+            )}
+
+            <div className="flex gap-3 mb-8">
+              <button
+                onClick={handleScan}
+                disabled={isScanning || selectedFolders.length === 0 || !destPath}
+                className="btn-action flex-1 py-3 flex items-center justify-center gap-2"
+              >
+                {isScanning && <RefreshCw className="w-4 h-4 animate-spin" />}
+                {isScanning ? 'Scanning...' : 'Scan for changes'}
+              </button>
+            </div>
+
+            {isSyncing && <SyncProgress result={scanResult} />}
+
+            <SyncHistory history={history} />
+          </>
+        )}
       </div>
 
-      {tab === 'share' ? (
-        <QuickShare />
-      ) : deviceStatus !== 'connected' ? (
-        <SetupGuide status={deviceStatus} onWifiConnect={() => setWifiModalOpen(true)} />
-      ) : (
-        <>
-          <div className="bg-white dark:bg-zinc-900 border-primary p-5 mb-6">
-            <div className="flex items-center gap-2 mb-4">
-              <FolderOpen className="w-5 h-5 text-zinc-400" />
-              <span className="font-medium">Destination folder</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                value={destPath}
-                onChange={(e) => setDestPath(e.target.value)}
-                className="flex-1 border px-3 py-2 text-sm bg-zinc-50 dark:bg-zinc-900 dark:text-white dark:border-zinc-700 font-mono"
-                placeholder="Select a destination folder..."
-              />
-              <button
-                onClick={handleBrowse}
-                className="btn-secondary"
-              >
-                Browse
-              </button>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-zinc-900 border-primary p-5 mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold">Folders to sync</h2>
-              <button
-                onClick={() => setSelectedFolders([])}
-                className="btn-secondary"
-              >
-                Clear all
-              </button>
-            </div>
-            {folderTree.length > 0 ? (
-              <FolderTree
-                tree={folderTree}
-                selected={selectedFolders}
-                onChange={setSelectedFolders}
-              />
-            ) : (
-              <div className="flex items-center justify-center py-8 text-zinc-400">
-                <RefreshCw className="w-5 h-5 animate-spin mr-2" />
-                Loading folders...
-              </div>
-            )}
-          </div>
-
-          {scanResult && (
-            <ScanPreview
-              result={scanResult}
-              onSync={handleSync}
-              onCancel={() => setScanResult(null)}
-            />
-          )}
-
-          <div className="flex gap-3 mb-8">
-            <button
-              onClick={handleScan}
-              disabled={isScanning || selectedFolders.length === 0 || !destPath}
-              className="btn-action flex-1 py-3 flex items-center justify-center gap-2"
-            >
-              {isScanning && <RefreshCw className="w-4 h-4 animate-spin" />}
-              {isScanning ? 'Scanning...' : 'Scan for changes'}
-            </button>
-          </div>
-
-          {isSyncing && <SyncProgress result={scanResult} />}
-
-          <SyncHistory history={history} />
-        </>
-      )}
 
       {wifiModalOpen && (
         <WifiConnect
