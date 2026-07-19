@@ -3,33 +3,21 @@ import { AlertTriangle, Smartphone, AlertCircle, RefreshCw, Wifi } from 'lucide-
 const SETUP_CONTENT = {
   checking: {
     icon: RefreshCw,
-    iconColor: 'text-zinc-500',
-    bgColor: 'bg-zinc-50 dark:bg-zinc-800',
-    borderColor: 'border-zinc-200 dark:border-zinc-700',
     title: 'Checking for phone...',
     description: 'Looking for a connected device.'
   },
   adb_not_found: {
     icon: AlertTriangle,
-    iconColor: 'text-amber-600',
-    bgColor: 'bg-amber-50 dark:bg-zinc-800',
-    borderColor: 'border-amber-200 dark:border-amber-900',
     title: 'ADB not detected',
     description: 'PhoneSync bundles ADB, but it needs to be downloaded first.'
   },
   no_device: {
     icon: Smartphone,
-    iconColor: 'text-blue-100',
-    bgColor: 'bg-blue-600 dark:bg-zinc-600',
-    borderColor: 'border-blue-200 dark:border-blue-900',
     title: 'Phone not detected',
     description: 'Connect your phone to get started.'
   },
   adb_error: {
     icon: AlertCircle,
-    iconColor: 'text-red-600',
-    bgColor: 'bg-red-50 dark:bg-zinc-800',
-    borderColor: 'border-red-200 dark:border-red-900',
     title: 'ADB error',
     description: 'Please reconnect your phone and restart the app.'
   }
@@ -40,21 +28,21 @@ export function SetupGuide({ status, onWifiConnect }) {
   const Icon = content.icon
 
   return (
-    <div className="">
-      <div className={`${content.bgColor} rounded-lg p-6 mb-6`}>
+    <div className="space-y-3">
+      <div className="card !bg-primary !text-white !border-primary/30">
         <div className="flex items-start gap-3">
-          <Icon className={`w-6 h-6 ${content.iconColor} shrink-0 mt-0.5${status === 'checking' ? ' animate-spin' : ''}`} />
+          <Icon className={`w-6 h-6 shrink-0 mt-0.5 ${status === 'checking' ? 'animate-spin' : ''}`} />
           <div>
-            <h2 className="text-lg font-semibold text-white dark:text-black mb-1">{content.title}</h2>
-            <p className="text-sm text-white">{content.description}</p>
+            <h2 className="text-lg font-semibold mb-1">{content.title}</h2>
+            <p className="text-sm text-white/80">{content.description}</p>
           </div>
         </div>
       </div>
 
       {status === 'adb_not_found' && (
-        <div className="bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 p-5">
-          <p className="font-medium mb-3">Install ADB manually:</p>
-          <ol className="list-decimal ml-5 space-y-2 text-sm text-zinc-600 dark:text-zinc-300">
+        <div className="card">
+          <p className="font-medium text-taupe-700 dark:text-taupe-200 mb-3">Install ADB manually:</p>
+          <ol className="list-decimal ml-5 space-y-2 text-sm text-taupe-600 dark:text-taupe-400">
             <li>
               Download <a href="https://developer.android.com/studio/releases/platform-tools" target="_blank" className="text-primary underline">Android Platform Tools</a>
             </li>
@@ -66,9 +54,9 @@ export function SetupGuide({ status, onWifiConnect }) {
       )}
 
       {status === 'no_device' && (
-        <div className="rounded-lg bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 p-5">
-          <p className="font-semibold mb-3">One-time setup on your Android phone:</p>
-          <ol className="list-decimal ml-5 space-y-2 text-sm text-slate-800 dark:text-slate-200">
+        <div className="card">
+          <p className="font-semibold text-taupe-700 dark:text-taupe-200 mb-3">One-time setup on your Android phone:</p>
+          <ol className="list-decimal ml-5 space-y-2 text-sm text-taupe-600 dark:text-taupe-400">
             <li>Open <strong>Settings → About phone</strong></li>
             <li>Tap <strong>"Build number"</strong> 7 times (you'll see "You are now a developer")</li>
             <li>Go back → <strong>System → Developer options</strong></li>
@@ -77,16 +65,13 @@ export function SetupGuide({ status, onWifiConnect }) {
             <li>Set the USB mode to <strong>"File transfer"</strong></li>
             <li>Accept the <strong>RSA key fingerprint</strong> prompt on your phone</li>
           </ol>
-          <p className="text-xs text-zinc-400 mt-4">After connecting, the app will detect your phone automatically.</p>
+          <p className="text-xs text-taupe-400 mt-4">After connecting, the app will detect your phone automatically.</p>
 
-          <div className="mt-5 pt-5 border-t border-zinc-200 dark:border-zinc-700">
-            <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-3">
+          <div className="mt-5 pt-5 border-t border-taupe-200 dark:border-taupe-700">
+            <p className="text-sm text-taupe-600 dark:text-taupe-400 mb-3">
               Prefer wireless? Connect over WiFi instead — no cable needed (Android 11+).
             </p>
-            <button
-              onClick={onWifiConnect}
-              className="btn-secondary flex items-center gap-2"
-            >
+            <button onClick={onWifiConnect} className="btn-secondary flex items-center gap-2">
               <Wifi className="w-4 h-4" /> Connect via WiFi
             </button>
           </div>

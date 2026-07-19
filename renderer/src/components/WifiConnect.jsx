@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 import {
+  Dialog, DialogPanel, DialogTitle, Tab, TabGroup, TabList, TabPanel, TabPanels
+} from '@headlessui/react'
+import {
   X, Wifi, RefreshCw, Link2, Search, AlertTriangle, ArrowRight,
   CheckCircle2, Smartphone
 } from 'lucide-react'
 
 export function WifiConnect({ onClose, onConnected, db }) {
-  const [tab, setTab] = useState('pair')
   const [version, setVersion] = useState(null)
   const [redownloading, setRedownloading] = useState(false)
   const [redownloadLog, setRedownloadLog] = useState('')
@@ -72,7 +74,6 @@ export function WifiConnect({ onClose, onConnected, db }) {
       setTimeout(onClose, 800)
     } else if (r.ok && r.paired) {
       setPairMsg({ ok: true, text: 'Paired. Now open the Reconnect tab and tap your device.' })
-      setTab('reconnect')
       refreshMdns()
     } else {
       setPairMsg({ ok: false, text: r.error || 'Pairing failed' })
@@ -119,241 +120,239 @@ export function WifiConnect({ onClose, onConnected, db }) {
   const supportsWifi = version?.supportsWifi
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={onClose}>
-      <div
-        className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 max-w-lg w-full max-h-[90vh] overflow-auto"
-        onClick={e => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between p-4 border-b dark:border-slate-700">
-          <div className="flex items-center gap-2">
-            <Wifi className="w-5 h-5 text-emerald-500" />
-            <h2 className="font-semibold">Connect via WiFi</h2>
+    <Dialog open={true} onClose={onClose} className="relative z-50">
+      <div className="fixed inset-0 bg-black/50" aria-hidden="true" />
+      <div className="fixed inset-0 flex items-center justify-center p-4">
+        <DialogPanel className="bg-white dark:bg-taupe-800 rounded-2xl max-w-lg w-full max-h-[90vh] overflow-auto shadow-xl border border-taupe-200 dark:border-taupe-700">
+          <div className="flex items-center justify-between p-4 border-b border-taupe-200 dark:border-taupe-700">
+            <div className="flex items-center gap-2">
+              <Wifi className="w-5 h-5 text-action" />
+              <DialogTitle className="font-semibold text-taupe-700 dark:text-taupe-200">Connect via WiFi</DialogTitle>
+            </div>
+            <button onClick={onClose} className="btn-secondary p-1.5" aria-label="Close">
+              <X className="w-4 h-4" />
+            </button>
           </div>
-          <button onClick={onClose} className="btn-secondary p-1.5" aria-label="Close"><X className="w-4 h-4" /></button>
-        </div>
 
-        <div className="p-4">
-          {!version && (
-            <div className="flex items-center justify-center py-8 text-sm text-slate-400">
-              <RefreshCw className="w-4 h-4 animate-spin mr-2" /> Checking ADB version…
-            </div>
-          )}
-
-          {version && !version.version && (
-            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-900 p-3 mb-4">
-              <div className="flex items-start gap-2">
-                <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-                <div className="text-sm">
-                  <p className="font-medium text-amber-700 dark:text-amber-400 mb-1">ADB not available</p>
-                  <p className="text-amber-700/80 dark:text-amber-400/80 mb-2">
-                    PhoneSync needs ADB to connect to your phone. Try updating it below.
-                  </p>
-                  <button onClick={handleRedownload} disabled={redownloading} className="btn-action py-1.5 px-3 text-xs flex items-center gap-2">
-                    {redownloading && <RefreshCw className="w-3 h-3 animate-spin" />}
-                    {redownloading ? 'Downloading…' : 'Download ADB'}
-                  </button>
-                  {redownloadLog && (
-                    <pre className="mt-2 text-xs font-mono whitespace-pre-wrap text-amber-800/70 dark:text-amber-300/70 max-h-24 overflow-auto">{redownloadLog}</pre>
-                  )}
-                </div>
+          <div className="p-4">
+            {!version && (
+              <div className="flex items-center justify-center py-8 text-sm text-taupe-400">
+                <RefreshCw className="w-4 h-4 animate-spin mr-2" /> Checking ADB version…
               </div>
-            </div>
-          )}
+            )}
 
-          {version && version.version && !supportsWifi && (
-            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-900 p-3 mb-4">
-              <div className="flex items-start gap-2">
-                <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-                <div className="text-sm">
-                  <p className="font-medium text-amber-700 dark:text-amber-400 mb-1">
-                    ADB {version.version} is too old for wireless debugging
-                  </p>
-                  <p className="text-amber-700/80 dark:text-amber-400/80 mb-2">
-                    Needs ADB 1.0.41+ for <code className="font-mono">adb pair</code> and <code className="font-mono">adb mdns</code>.
-                  </p>
-                  <button onClick={handleRedownload} disabled={redownloading} className="btn-action py-1.5 px-3 text-xs flex items-center gap-2">
-                    {redownloading && <RefreshCw className="w-3 h-3 animate-spin" />}
-                    {redownloading ? 'Updating…' : 'Update bundled ADB'}
-                  </button>
-                  {redownloadLog && (
-                    <pre className="mt-2 text-xs font-mono whitespace-pre-wrap text-amber-800/70 dark:text-amber-300/70 max-h-24 overflow-auto">{redownloadLog}</pre>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {version && supportsWifi && (
-            <div className="flex gap-2 mb-4">
-              <button
-                onClick={() => setTab('pair')}
-                className={`flex-1 py-2 text-sm font-mono font-medium cursor-pointer border flex items-center justify-center gap-2 ${tab === 'pair' ? 'bg-slate-100 dark:bg-slate-800 border-emerald-400 text-emerald-600 dark:text-emerald-400' : 'bg-transparent text-slate-700 border-slate-300 hover:bg-slate-100 dark:text-slate-200 dark:border-slate-600 dark:hover:bg-slate-800'}`}
-              >
-                <Link2 className="w-4 h-4" /> Pair new
-              </button>
-              <button
-                onClick={() => { setTab('reconnect'); refreshMdns() }}
-                className={`flex-1 py-2 text-sm font-mono font-medium cursor-pointer border flex items-center justify-center gap-2 ${tab === 'reconnect' ? 'bg-slate-100 dark:bg-slate-800 border-emerald-400 text-emerald-600 dark:text-emerald-400' : 'bg-transparent text-slate-700 border-slate-300 hover:bg-slate-100 dark:text-slate-200 dark:border-slate-600 dark:hover:bg-slate-800'}`}
-              >
-                <Search className="w-4 h-4" /> Reconnect
-              </button>
-            </div>
-          )}
-
-          {version && supportsWifi && tab === 'pair' && (
-            <div>
-              <div className="text-xs text-slate-500 dark:text-slate-400 mb-3 space-y-1">
-                <p className="font-medium text-slate-700 dark:text-slate-300">On your phone (Android 11+):</p>
-                <ol className="list-decimal ml-5 space-y-1">
-                  <li>Settings → System → Developer options → <strong>Wireless debugging</strong></li>
-                  <li>Tap <strong>Pair device with code</strong></li>
-                  <li>Note the <strong>IP address</strong>, <strong>pair port</strong>, and 6-digit <strong>code</strong></li>
-                </ol>
-              </div>
-
-              <form onSubmit={handlePairAndConnect} className="space-y-3">
-                <div className="grid grid-cols-3 gap-2">
-                  <div className="col-span-2">
-                    <label className="text-xs text-slate-500 block mb-1">Phone IP</label>
-                    <input
-                      value={pairIp}
-                      onChange={e => setPairIp(e.target.value)}
-                      placeholder="192.168.1.50"
-                      className="w-full border px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 dark:text-white dark:border-slate-700 font-mono"
-                      autoFocus
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs text-slate-500 block mb-1">Pair port</label>
-                    <input
-                      value={pairPort}
-                      onChange={e => setPairPort(e.target.value)}
-                      placeholder="37553"
-                      className="w-full border px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 dark:text-white dark:border-slate-700 font-mono"
-                    />
+            {version && !version.version && (
+              <div className="bg-taupe-100 dark:bg-taupe-700/50 rounded-xl p-4 mb-4 border border-taupe-200 dark:border-taupe-700">
+                <div className="flex items-start gap-2">
+                  <AlertTriangle className="w-5 h-5 text-taupe-500 flex-shrink-0 mt-0.5" />
+                  <div className="text-sm">
+                    <p className="font-medium text-taupe-700 dark:text-taupe-200 mb-1">ADB not available</p>
+                    <p className="text-taupe-600 dark:text-taupe-400 mb-2">
+                      PhoneSync needs ADB to connect to your phone. Try updating it below.
+                    </p>
+                    <button onClick={handleRedownload} disabled={redownloading} className="btn-action py-1.5 px-3 text-xs flex items-center gap-2">
+                      {redownloading && <RefreshCw className="w-3 h-3 animate-spin" />}
+                      {redownloading ? 'Downloading…' : 'Download ADB'}
+                    </button>
+                    {redownloadLog && (
+                      <pre className="mt-2 text-xs font-mono whitespace-pre-wrap text-taupe-600 dark:text-taupe-400 max-h-24 overflow-auto">{redownloadLog}</pre>
+                    )}
                   </div>
                 </div>
-                <div>
-                  <label className="text-xs text-slate-500 block mb-1">6-digit pairing code</label>
-                  <input
-                    value={pairCode}
-                    onChange={e => setPairCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                    placeholder="123456"
-                    inputMode="numeric"
-                    className="w-full border px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 dark:text-white dark:border-slate-700 font-mono tracking-widest"
-                  />
-                </div>
-
-                {pairMsg && (
-                  <div className={`text-xs p-2 whitespace-pre-line ${pairMsg.ok ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400' : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'}`}>
-                    {pairMsg.ok && <CheckCircle2 className="w-3.5 h-3.5 inline mr-1" />}
-                    {pairMsg.text}
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={pairBusy}
-                  className="btn-action w-full py-2.5 flex items-center justify-center gap-2"
-                >
-                  {pairBusy && <RefreshCw className="w-4 h-4 animate-spin" />}
-                  {pairBusy ? 'Pairing…' : 'Pair & connect'}
-                </button>
-                <p className="text-xs text-slate-400 text-center">
-                  Pairing is one-time. Future sessions just need a tap in the Reconnect tab.
-                </p>
-              </form>
-            </div>
-          )}
-
-          {version && supportsWifi && tab === 'reconnect' && (
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Discovered devices on your WiFi
-                </p>
-                <button onClick={refreshMdns} disabled={mdnsScanning} className="btn-secondary p-1.5">
-                  <RefreshCw className={`w-3.5 h-3.5 ${mdnsScanning ? 'animate-spin' : ''}`} />
-                </button>
               </div>
+            )}
 
-              {lastDevice && (
-                <div className="mb-3">
-                  <p className="text-xs text-slate-400 mb-1">Last used</p>
-                  <button
-                    onClick={() => handleConnectByIp(lastDevice.ip, `last-${lastDevice.ip}`)}
-                    disabled={connectBusyId === `last-${lastDevice.ip}`}
-                    className="w-full flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-emerald-400 text-left"
-                  >
-                    <span className="flex items-center gap-2 text-sm">
-                      <Smartphone className="w-4 h-4 text-slate-400" />
-                      <span className="font-mono">{lastDevice.model || 'Device'}</span>
-                      <span className="text-slate-400 text-xs">{lastDevice.ip}</span>
-                    </span>
-                    {connectBusyId === `last-${lastDevice.ip}` ? <RefreshCw className="w-4 h-4 animate-spin" /> : <ArrowRight className="w-4 h-4 text-slate-400" />}
-                  </button>
-                  <p className="text-xs text-slate-400 mt-1">Scans for this phone's current port and reconnects.</p>
+            {version && version.version && !supportsWifi && (
+              <div className="bg-taupe-100 dark:bg-taupe-700/50 rounded-xl p-4 mb-4 border border-taupe-200 dark:border-taupe-700">
+                <div className="flex items-start gap-2">
+                  <AlertTriangle className="w-5 h-5 text-taupe-500 flex-shrink-0 mt-0.5" />
+                  <div className="text-sm">
+                    <p className="font-medium text-taupe-700 dark:text-taupe-200 mb-1">
+                      ADB {version.version} is too old for wireless debugging
+                    </p>
+                    <p className="text-taupe-600 dark:text-taupe-400 mb-2">
+                      Needs ADB 1.0.41+ for <code className="font-mono">adb pair</code> and <code className="font-mono">adb mdns</code>.
+                    </p>
+                    <button onClick={handleRedownload} disabled={redownloading} className="btn-action py-1.5 px-3 text-xs flex items-center gap-2">
+                      {redownloading && <RefreshCw className="w-3 h-3 animate-spin" />}
+                      {redownloading ? 'Updating…' : 'Update bundled ADB'}
+                    </button>
+                    {redownloadLog && (
+                      <pre className="mt-2 text-xs font-mono whitespace-pre-wrap text-taupe-600 dark:text-taupe-400 max-h-24 overflow-auto">{redownloadLog}</pre>
+                    )}
+                  </div>
                 </div>
-              )}
+              </div>
+            )}
 
-              {mdnsDevices.length === 0 && !mdnsScanning ? (
-                <div className="text-center py-6 text-sm text-slate-400">
-                  No devices found. Make sure wireless debugging is enabled on the phone and both devices are on the same WiFi.
-                </div>
-              ) : (
-                <ul className="space-y-2">
-                  {mdnsDevices.map(d => (
-                    <li key={d.id}>
+            {version && supportsWifi && (
+              <TabGroup>
+                <TabList className="flex gap-2 mb-4">
+                  <Tab className="flex-1 py-2 text-sm font-medium cursor-pointer rounded-lg transition-all duration-150 data-[selected]:bg-white dark:data-[selected]:bg-taupe-700 data-[selected]:shadow-sm data-[selected]:text-taupe-800 dark:data-[selected]:text-taupe-200 text-taupe-500 dark:text-taupe-400 hover:text-taupe-700 dark:hover:text-taupe-300 border border-taupe-200 dark:border-taupe-700 data-[selected]:border-transparent flex items-center justify-center gap-2">
+                    <Link2 className="w-4 h-4" /> Pair new
+                  </Tab>
+                  <Tab className="flex-1 py-2 text-sm font-medium cursor-pointer rounded-lg transition-all duration-150 data-[selected]:bg-white dark:data-[selected]:bg-taupe-700 data-[selected]:shadow-sm data-[selected]:text-taupe-800 dark:data-[selected]:text-taupe-200 text-taupe-500 dark:text-taupe-400 hover:text-taupe-700 dark:hover:text-taupe-300 border border-taupe-200 dark:border-taupe-700 data-[selected]:border-transparent flex items-center justify-center gap-2">
+                    <Search className="w-4 h-4" /> Reconnect
+                  </Tab>
+                </TabList>
+                <TabPanels>
+                  <TabPanel>
+                    <div className="text-xs text-taupe-500 dark:text-taupe-400 mb-3 space-y-1">
+                      <p className="font-medium text-taupe-700 dark:text-taupe-200">On your phone (Android 11+):</p>
+                      <ol className="list-decimal ml-5 space-y-1">
+                        <li>Settings → System → Developer options → <strong>Wireless debugging</strong></li>
+                        <li>Tap <strong>Pair device with code</strong></li>
+                        <li>Note the <strong>IP address</strong>, <strong>pair port</strong>, and 6-digit <strong>code</strong></li>
+                      </ol>
+                    </div>
+
+                    <form onSubmit={handlePairAndConnect} className="space-y-3">
+                      <div className="grid grid-cols-3 gap-2">
+                        <div className="col-span-2">
+                          <label className="text-xs text-taupe-500 block mb-1">Phone IP</label>
+                          <input
+                            value={pairIp}
+                            onChange={e => setPairIp(e.target.value)}
+                            placeholder="192.168.1.50"
+                            className="input-main"
+                            autoFocus
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs text-taupe-500 block mb-1">Pair port</label>
+                          <input
+                            value={pairPort}
+                            onChange={e => setPairPort(e.target.value)}
+                            placeholder="37553"
+                            className="input-main"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-xs text-taupe-500 block mb-1">6-digit pairing code</label>
+                        <input
+                          value={pairCode}
+                          onChange={e => setPairCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                          placeholder="123456"
+                          inputMode="numeric"
+                          className="input-main tracking-widest"
+                        />
+                      </div>
+
+                      {pairMsg && (
+                        <div className={`text-xs p-3 rounded-xl whitespace-pre-line ${
+                          pairMsg.ok
+                            ? 'bg-action/10 text-action'
+                            : 'bg-danger/10 text-danger'
+                        }`}>
+                          {pairMsg.ok && <CheckCircle2 className="w-3.5 h-3.5 inline mr-1" />}
+                          {pairMsg.text}
+                        </div>
+                      )}
+
                       <button
-                        onClick={() => handleConnect(d.ip, d.port, d.id)}
-                        disabled={connectBusyId === d.id}
-                        className="w-full flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-emerald-400 text-left"
+                        type="submit"
+                        disabled={pairBusy}
+                        className="btn-action w-full py-2.5 flex items-center justify-center gap-2"
                       >
-                        <span className="flex items-center gap-2 text-sm font-mono">
-                          <Smartphone className="w-4 h-4 text-slate-400" />
-                          {d.ip}:{d.port}
-                        </span>
-                        {connectBusyId === d.id ? <RefreshCw className="w-4 h-4 animate-spin" /> : <ArrowRight className="w-4 h-4 text-slate-400" />}
+                        {pairBusy && <RefreshCw className="w-4 h-4 animate-spin" />}
+                        {pairBusy ? 'Pairing…' : 'Pair & connect'}
                       </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
+                      <p className="text-xs text-taupe-400 text-center">
+                        Pairing is one-time. Future sessions just need a tap in the Reconnect tab.
+                      </p>
+                    </form>
+                  </TabPanel>
+                  <TabPanel>
+                    <div className="flex items-center justify-between mb-3">
+                      <p className="text-xs text-taupe-500 dark:text-taupe-400">
+                        Discovered devices on your WiFi
+                      </p>
+                      <button onClick={refreshMdns} disabled={mdnsScanning} className="btn-secondary p-1.5">
+                        <RefreshCw className={`w-3.5 h-3.5 ${mdnsScanning ? 'animate-spin' : ''}`} />
+                      </button>
+                    </div>
 
-              {connectMsg && (
-                <div className="text-xs p-2 mt-3 whitespace-pre-line bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400">
-                  {connectMsg.text}
-                </div>
-              )}
+                    {lastDevice && (
+                      <div className="mb-3">
+                        <p className="text-xs text-taupe-400 mb-1">Last used</p>
+                        <button
+                          onClick={() => handleConnectByIp(lastDevice.ip, `last-${lastDevice.ip}`)}
+                          disabled={connectBusyId === `last-${lastDevice.ip}`}
+                          className="w-full flex items-center justify-between p-3 rounded-xl bg-taupe-100 dark:bg-taupe-700/50 border border-taupe-200 dark:border-taupe-700 hover:border-action/50 text-left transition-colors duration-150"
+                        >
+                          <span className="flex items-center gap-2 text-sm">
+                            <Smartphone className="w-4 h-4 text-taupe-400" />
+                            <span className="font-mono text-taupe-700 dark:text-taupe-200">{lastDevice.model || 'Device'}</span>
+                            <span className="text-taupe-400 text-xs">{lastDevice.ip}</span>
+                          </span>
+                          {connectBusyId === `last-${lastDevice.ip}` ? <RefreshCw className="w-4 h-4 animate-spin" /> : <ArrowRight className="w-4 h-4 text-taupe-400" />}
+                        </button>
+                        <p className="text-xs text-taupe-400 mt-1">Scans for this phone's current port and reconnects.</p>
+                      </div>
+                    )}
 
-              <details className="mt-4">
-                <summary className="text-xs text-slate-500 cursor-pointer hover:text-slate-700 dark:hover:text-slate-300">Connect manually instead</summary>
-                <div className="mt-2 flex gap-2">
-                  <input
-                    value={manualIp}
-                    onChange={e => setManualIp(e.target.value)}
-                    placeholder="192.168.1.50"
-                    className="flex-1 border px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 dark:text-white dark:border-slate-700 font-mono"
-                  />
-                  <input
-                    value={manualPort}
-                    onChange={e => setManualPort(e.target.value)}
-                    placeholder="43525"
-                    className="w-24 border px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 dark:text-white dark:border-slate-700 font-mono"
-                  />
-                  <button
-                    onClick={() => handleConnect(manualIp, manualPort, `manual-${manualIp}:${manualPort}`)}
-                    disabled={connectBusyId === `manual-${manualIp}:${manualPort}` || !manualIp || !manualPort}
-                    className="btn-secondary"
-                  >
-                    {connectBusyId === `manual-${manualIp}:${manualPort}` ? <RefreshCw className="w-4 h-4 animate-spin" /> : 'Connect'}
-                  </button>
-                </div>
-              </details>
-            </div>
-          )}
-        </div>
+                    {mdnsDevices.length === 0 && !mdnsScanning ? (
+                      <div className="text-center py-6 text-sm text-taupe-400">
+                        No devices found. Make sure wireless debugging is enabled on the phone and both devices are on the same WiFi.
+                      </div>
+                    ) : (
+                      <ul className="space-y-2">
+                        {mdnsDevices.map(d => (
+                          <li key={d.id}>
+                            <button
+                              onClick={() => handleConnect(d.ip, d.port, d.id)}
+                              disabled={connectBusyId === d.id}
+                              className="w-full flex items-center justify-between p-3 rounded-xl bg-taupe-100 dark:bg-taupe-700/50 border border-taupe-200 dark:border-taupe-700 hover:border-action/50 text-left transition-colors duration-150"
+                            >
+                              <span className="flex items-center gap-2 text-sm font-mono text-taupe-700 dark:text-taupe-200">
+                                <Smartphone className="w-4 h-4 text-taupe-400" />
+                                {d.ip}:{d.port}
+                              </span>
+                              {connectBusyId === d.id ? <RefreshCw className="w-4 h-4 animate-spin" /> : <ArrowRight className="w-4 h-4 text-taupe-400" />}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+
+                    {connectMsg && (
+                      <div className="text-xs p-3 rounded-xl mt-3 whitespace-pre-line bg-danger/10 text-danger">
+                        {connectMsg.text}
+                      </div>
+                    )}
+
+                    <details className="mt-4">
+                      <summary className="text-xs text-taupe-500 cursor-pointer hover:text-taupe-700 dark:hover:text-taupe-300">Connect manually instead</summary>
+                      <div className="mt-2 flex gap-2">
+                        <input
+                          value={manualIp}
+                          onChange={e => setManualIp(e.target.value)}
+                          placeholder="192.168.1.50"
+                          className="input-main flex-1"
+                        />
+                        <input
+                          value={manualPort}
+                          onChange={e => setManualPort(e.target.value)}
+                          placeholder="43525"
+                          className="input-main w-24"
+                        />
+                        <button
+                          onClick={() => handleConnect(manualIp, manualPort, `manual-${manualIp}:${manualPort}`)}
+                          disabled={connectBusyId === `manual-${manualIp}:${manualPort}` || !manualIp || !manualPort}
+                          className="btn-secondary whitespace-nowrap"
+                        >
+                          {connectBusyId === `manual-${manualIp}:${manualPort}` ? <RefreshCw className="w-4 h-4 animate-spin" /> : 'Connect'}
+                        </button>
+                      </div>
+                    </details>
+                  </TabPanel>
+                </TabPanels>
+              </TabGroup>
+            )}
+          </div>
+        </DialogPanel>
       </div>
-    </div>
+    </Dialog>
   )
 }

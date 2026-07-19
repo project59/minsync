@@ -2,7 +2,22 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #3b82f6;
+  --color-primary: #5b7fa5;
+  --color-primary-hover: #4a6b8f;
+  --color-action: #6a9d7a;
+  --color-action-hover: #588668;
+  --color-danger: #c47a7a;
+  --color-danger-hover: #b06565;
+  --color-taupe-50: #faf7f2;
+  --color-taupe-100: #f0ece4;
+  --color-taupe-200: #e0d9cd;
+  --color-taupe-300: #cdc2b1;
+  --color-taupe-400: #b8a995;
+  --color-taupe-500: #a4917b;
+  --color-taupe-600: #8a7863;
+  --color-taupe-700: #6e5f4e;
+  --color-taupe-800: #4f4438;
+  --color-taupe-900: #332b24;
   --font-mono: ui-monospace, monospace;
   --font-serif: "Hedvig Letters Serif", serif;
 }
@@ -11,38 +26,57 @@
 
 @layer base {
   html {
-    @apply bg-white text-black dark:bg-slate-900 dark:text-white;
+    @apply bg-taupe-50 text-taupe-900 dark:bg-taupe-900 dark:text-taupe-100;
   }
 }
 
 body {
-  @apply bg-white dark:bg-black text-black dark:text-white min-h-screen font-serif;
+  @apply min-h-screen font-serif bg-taupe-50 text-taupe-900 dark:bg-taupe-900 dark:text-taupe-100;
 }
 
 @layer components {
   .btn-primary {
-    @apply rounded-full bg-primary text-white font-mono border border-transparent py-2 px-4 text-sm font-medium cursor-pointer hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply rounded-full bg-primary text-white font-medium py-2 px-4 text-sm cursor-pointer
+           hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed
+           transition-colors duration-150;
   }
 
   .btn-action {
-    @apply rounded-full bg-primary text-white font-mono border border-transparent py-2 px-4 text-sm font-medium cursor-pointer hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply rounded-full bg-action text-white font-medium py-2 px-4 text-sm cursor-pointer
+           hover:bg-action-hover disabled:opacity-50 disabled:cursor-not-allowed
+           transition-colors duration-150;
   }
 
   .btn-secondary {
-    @apply rounded-full bg-cyan-700 text-white h-8 flex items-center justify-center gap-1 text-sm px-3 font-semibold cursor-pointer hover:bg-cyan-600;
+    @apply rounded-full bg-taupe-200 text-taupe-800 font-medium py-2 px-4 text-sm cursor-pointer
+           hover:bg-taupe-300 disabled:opacity-50 disabled:cursor-not-allowed
+           dark:bg-taupe-700 dark:text-taupe-200 dark:hover:bg-taupe-600
+           transition-colors duration-150;
   }
 
   .btn-danger {
-    @apply bg-transparent text-red-600 font-mono border border-red-300 py-2 px-4 text-lg font-medium cursor-pointer hover:bg-red-50 dark:text-red-400 dark:border-red-600 dark:hover:bg-red-900/20;
+    @apply rounded-full bg-danger text-white font-medium py-2 px-4 text-sm cursor-pointer
+           hover:bg-danger-hover disabled:opacity-50 disabled:cursor-not-allowed
+           transition-colors duration-150;
+  }
+
+  .input-main {
+    @apply w-full px-3 py-2 text-sm bg-taupe-100 text-taupe-900
+           dark:bg-taupe-800 dark:text-taupe-100
+           rounded-xl border border-taupe-200 dark:border-taupe-700
+           placeholder:text-taupe-400 dark:placeholder:text-taupe-500
+           focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary
+           transition-colors duration-150;
+  }
+
+  .card {
+    @apply bg-white dark:bg-taupe-800/80 rounded-2xl p-4
+           shadow-sm border border-taupe-200 dark:border-taupe-700;
   }
 }
 
 @layer utilities {
   .no-rounded {
     border-radius: 0;
-  }
-
-  .border-primary {
-    @apply border border-slate-200 dark:border-slate-800;
   }
 }
