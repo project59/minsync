@@ -1,22 +1,25 @@
-import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react'
-import { History, ChevronDown } from 'lucide-react'
+import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react'
+import { History, X } from 'lucide-react'
 
-export function SyncHistory({ history }) {
+export function SyncHistory({ history, open, onClose }) {
   return (
-    <Disclosure>
-      {({ open }) => (
-        <div className="card">
-          <DisclosureButton className="flex items-center justify-between w-full cursor-pointer group">
+    <Dialog open={open} onClose={onClose} className="relative z-50">
+      <div className="fixed inset-0 bg-black/50" aria-hidden="true" />
+      <div className="fixed inset-0 flex items-center justify-center p-4">
+        <DialogPanel className="bg-white dark:bg-taupe-800 rounded-2xl max-w-lg w-full max-h-[90vh] overflow-auto shadow-xl border border-taupe-200 dark:border-taupe-700">
+          <div className="flex items-center justify-between p-4 border-b border-taupe-200 dark:border-taupe-700">
             <div className="flex items-center gap-2">
-              <History className="w-4 h-4 text-taupe-500" />
-              <span className="font-semibold text-taupe-700 dark:text-taupe-200">Sync history</span>
+              <History className="w-5 h-5 text-taupe-500" />
+              <DialogTitle className="font-semibold text-taupe-700 dark:text-taupe-200">Sync history</DialogTitle>
               <span className="text-xs text-taupe-400 bg-taupe-100 dark:bg-taupe-700 px-2 py-0.5 rounded-full font-mono">
                 {history.length}
               </span>
             </div>
-            <ChevronDown className={`w-4 h-4 text-taupe-400 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
-          </DisclosureButton>
-          <DisclosurePanel className="mt-3 space-y-1">
+            <button onClick={onClose} className="btn-secondary p-1.5" aria-label="Close sync history">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="p-4">
             {history.length === 0 ? (
               <p className="text-taupe-400 italic text-sm py-2">No syncs yet</p>
             ) : (
@@ -33,9 +36,9 @@ export function SyncHistory({ history }) {
                 ))}
               </div>
             )}
-          </DisclosurePanel>
-        </div>
-      )}
-    </Disclosure>
+          </div>
+        </DialogPanel>
+      </div>
+    </Dialog>
   )
 }

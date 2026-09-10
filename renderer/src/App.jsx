@@ -1,18 +1,21 @@
 import { useState, useEffect } from 'react'
-import { RefreshCw } from 'lucide-react'
-import { ScanPreview } from './components/ScanPreview'
-import { SyncProgress } from './components/SyncProgress'
 import { SyncHistory } from './components/SyncHistory'
-import { SetupGuide } from './components/SetupGuide'
-import { QuickShare } from './components/QuickShare'
 import { WifiConnect } from './components/WifiConnect'
 import { Header } from './components/Header'
-import { TabBar } from './components/TabBar'
-import { DestinationPicker } from './components/DestinationPicker'
-import { FolderSyncSection } from './components/FolderSyncSection'
 import { SyncDB } from '../db'
+import { HomePage } from './pages/HomePage'
+import { BackupPage } from './pages/BackupPage'
+import { QuickSharePage } from './pages/QuickSharePage'
+import { PricingPage, FAQPage } from './pages/InfoPages'
+import { Footer } from './components/Footer'
 
 const db = new SyncDB()
+const ROUTES = ['/', '/backup', '/quick-share', '/pricing', '/faq']
+
+function getRoute() {
+  const path = window.location.hash.replace(/^#/, '') || '/'
+  return ROUTES.includes(path) ? path : '/'
+}
 
 export default function App() {
   const [darkMode, setDarkMode] = useState(() => {
@@ -31,9 +34,21 @@ export default function App() {
   const [isSyncing, setIsSyncing] = useState(false)
   const [scanResult, setScanResult] = useState(null)
   const [history, setHistory] = useState([])
-  const [tab, setTab] = useState('backup')
+  const [route, setRoute] = useState(getRoute)
+  const [historyModalOpen, setHistoryModalOpen] = useState(false)
   const [wifiModalOpen, setWifiModalOpen] = useState(false)
   const [wifiDisconnecting, setWifiDisconnecting] = useState(false)
+
+  useEffect(() => {
+    const handleHashChange = () => setRoute(getRoute())
+    window.addEventListener('hashchange', handleHashChange)
+    return () => window.removeEventListener('hashchange', handleHashChange)
+  }, [])
+
+  function navigate(path) {
+    if (path === route) return
+    window.location.hash = path
+  }
 
   useEffect(() => {
     pollStatus()
@@ -193,64 +208,51 @@ export default function App() {
   }
 
   return (
-    <div className="mx-auto p-2 h-screen flex flex-col">
+    <div className="app-shell">
       <Header
         darkMode={darkMode}
         setDarkMode={setDarkMode}
         device={device}
         deviceStatus={deviceStatus}
-        tab={tab}
+        route={route}
+        tab={route === '/backup' ? 'backup' : 'share'}
+        onNavigate={navigate}
+        historyCount={history.length}
+        onHistoryOpen={() => setHistoryModalOpen(true)}
         wifiDisconnecting={wifiDisconnecting}
         isSyncing={isSyncing}
         onWifiConnect={() => setWifiModalOpen(true)}
         onWifiDisconnect={handleWifiDisconnect}
       />
 
-      <div className="bg-taupe-200/60 dark:bg-taupe-800/40 rounded-2xl p-3 flex flex-col gap-3 flex-1">
-        <TabBar tab={tab} setTab={setTab} />
-
-        {tab === 'share' ? (
-          <QuickShare />
-        ) : deviceStatus !== 'connected' ? (
-          <SetupGuide status={deviceStatus} onWifiConnect={() => setWifiModalOpen(true)} />
-        ) : (
-          <>
-            <DestinationPicker
-              destPath={destPath}
-              onChange={setDestPath}
-              onBrowse={handleBrowse}
-            />
-
-            <FolderSyncSection
-              folderTree={folderTree}
-              selectedFolders={selectedFolders}
-              setSelectedFolders={setSelectedFolders}
-              isLoadingTree={isLoadingTree}
-            />
-
-            {scanResult && (
-              <ScanPreview
-                result={scanResult}
-                onSync={handleSync}
-                onCancel={() => setScanResult(null)}
-              />
-            )}
-
-            <button
-              onClick={handleScan}
-              disabled={isScanning || selectedFolders.length === 0 || !destPath}
-              className="btn-action flex-1 py-3 flex items-center justify-center gap-2"
-            >
-              {isScanning && <RefreshCw className="w-4 h-4 animate-spin" />}
-              {isScanning ? 'Scanning...' : 'Scan for changes'}
-            </button>
-
-            {isSyncing && <SyncProgress result={scanResult} />}
-
-            <SyncHistory history={history} />
-          </>
+      <div className="app-content">
+        {route === '/' && <HomePage onNavigate={navigate} deviceStatus={deviceStatus} />}
+        {route === '/backup' && (
+          <BackupPage
+            device={device}
+            deviceStatus={deviceStatus}
+            destPath={destPath}
+            setDestPath={setDestPath}
+            folderTree={folderTree}
+            selectedFolders={selectedFolders}
+            setSelectedFolders={setSelectedFolders}
+            isLoadingTree={isLoadingTree}
+            isScanning={isScanning}
+            isSyncing={isSyncing}
+            scanResult={scanResult}
+            onWifiConnect={() => setWifiModalOpen(true)}
+            onBrowse={handleBrowse}
+            onScan={handleScan}
+            onSync={handleSync}
+            onCancelScan={() => setScanResult(null)}
+          />
         )}
+        {route === '/quick-share' && <QuickSharePage />}
+        {route === '/pricing' && <PricingPage />}
+        {route === '/faq' && <FAQPage />}
       </div>
+
+      <Footer onNavigate={navigate} />
 
       {wifiModalOpen && (
         <WifiConnect
@@ -259,6 +261,12 @@ export default function App() {
           onConnected={handleWifiConnected}
         />
       )}
+
+      <SyncHistory
+        history={history}
+        open={historyModalOpen}
+        onClose={() => setHistoryModalOpen(false)}
+      />
     </div>
   )
 }
