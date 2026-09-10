@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron')
+const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron')
 const path = require('path')
 const fs = require('fs')
 const http = require('http')
@@ -466,7 +466,7 @@ ipcMain.handle('adb:tree', async (_, deviceId, includeAndroid = false) => {
     for (let start = 0; start < dirs.length; start += 40) {
       const batch = dirs.slice(start, start + 40)
       const command = batch.map(dir => (
-        `printf '__PHONESYNC_DIR__%s\\n' "${dir}"; ls -l "${dir}" 2>/dev/null`
+        `echo __PHONESYNC_DIR__"${dir}"; ls -l "${dir}" 2>/dev/null`
       )).join('; ')
       const { stdout } = await safeAdbShell(deviceId, command)
       let currentDir = null
@@ -496,20 +496,25 @@ ipcMain.handle('adb:tree', async (_, deviceId, includeAndroid = false) => {
 })
 
 ipcMain.handle('adb:scan', async (_, deviceId, folders) => {
-  const allFiles = []
-  for (const folder of folders) {
+  const roots = [...new Set(folders)]
+    .sort((a, b) => a.length - b.length)
+    .filter((folder, index, selected) => (
+      !selected.slice(0, index).some(parent => folder.startsWith(`${parent}/`))
+    ))
+
+  const results = await Promise.all(roots.map(async folder => {
     const { stdout: entry } = await safeAdbShell(deviceId, `ls -ld "${folder}" 2>/dev/null`)
     if (entry.trim().startsWith('-')) {
       const parsed = parseLsRecursive(`${folder}:\n${entry}`)
-      if (parsed[0]) {
-        parsed[0].path = folder
-        allFiles.push(parsed[0])
-      }
-      continue
+      if (!parsed[0]) return []
+      parsed[0].path = folder
+      return [parsed[0]]
     }
     const { stdout } = await safeAdbShell(deviceId, `ls -lR "${folder}" 2>/dev/null`)
-    allFiles.push(...parseLsRecursive(stdout))
-  }
+    return parseLsRecursive(stdout)
+  }))
+
+  const allFiles = results.flat()
   return [...new Map(allFiles.map(file => [file.path, file])).values()]
 })
 
@@ -546,6 +551,13 @@ ipcMain.handle('dialog:pickFolder', async () => {
     properties: ['openDirectory']
   })
   return result.canceled ? null : result.filePaths[0]
+})
+
+ipcMain.handle('files:openFolder', async (_, folderPath) => {
+  if (!folderPath || typeof folderPath !== 'string') return false
+  const error = await shell.openPath(folderPath)
+  if (error) throw new Error(error)
+  return true
 })
 
 ipcMain.handle('files:checkPC', async (_, destPath, phoneFiles) => {

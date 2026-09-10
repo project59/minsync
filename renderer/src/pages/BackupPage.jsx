@@ -25,7 +25,10 @@ export function BackupPage({
   onBrowse,
   onScan,
   onSync,
-  onCancelScan
+  onCancelScan,
+  syncSummary,
+  onOpenFolder,
+  onNewScan
 }) {
   const [step, setStep] = useState(1)
   const [connectionType, setConnectionType] = useState(null)
@@ -39,11 +42,11 @@ export function BackupPage({
     }
   }, [connectionType, deviceStatus, device?.transport, step])
 
-  const stepTitles = ['Choose connection', 'Set up your connection', 'Choose a destination folder', 'Choose files to back up']
+  const stepTitles = ['Choose connection', 'Set up your connection', 'Choose a Sync folder', 'Choose files to back up']
   const stepDescriptions = [
     'Choose how you want to connect your phone for this backup.',
     connectionType === 'usb' ? 'Connect your phone with a USB cable and complete the setup.' : 'Pair your phone using Android wireless debugging.',
-    'Choose where PhoneSync should save the files on this computer.',
+    'Choose where PhoneSync should save the files on this computer. Files located anywhere in this folder will be detected by PhoneSync.',
     'Select the folders and files you want to include in this backup.'
   ]
   const connectedWithSelectedMethod = deviceStatus === 'connected' && device?.transport === connectionType
@@ -137,12 +140,18 @@ export function BackupPage({
             setSelectedFolders={setSelectedFolders}
             isLoadingTree={isLoadingTree}
           />
-          {scanResult && <ScanPreview result={scanResult} onSync={onSync} onCancel={onCancelScan} />}
-          <StepNavigation
-            nextDisabled={isScanning || selectedFolders.length === 0 || !destPath}
-            onNext={onScan}
-            nextLabel={isScanning ? 'Scanning...' : 'Scan for changes'}
-          />
+          {syncSummary ? (
+            <ScanPreview summary={syncSummary} onOpenFolder={onOpenFolder} onNewScan={onNewScan} />
+          ) : scanResult ? (
+            <ScanPreview result={scanResult} onSync={onSync} onCancel={onCancelScan} />
+          ) : null}
+          {!syncSummary && (
+            <StepNavigation
+              nextDisabled={isScanning || selectedFolders.length === 0 || !destPath}
+              onNext={onScan}
+              nextLabel={isScanning ? 'Scanning...' : 'Scan for changes'}
+            />
+          )}
           {isSyncing && <SyncProgress result={scanResult} />}
         </section>
         )}

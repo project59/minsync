@@ -35,6 +35,7 @@ export default function App() {
   const [isScanning, setIsScanning] = useState(false)
   const [isSyncing, setIsSyncing] = useState(false)
   const [scanResult, setScanResult] = useState(null)
+  const [syncSummary, setSyncSummary] = useState(null)
   const [history, setHistory] = useState([])
   const [route, setRoute] = useState(getRoute)
   const [historyModalOpen, setHistoryModalOpen] = useState(false)
@@ -151,17 +152,19 @@ export default function App() {
 
   async function handleScan() {
     if (!device || selectedFolders.length === 0 || !destPath) return
+    setSyncSummary(null)
     setIsScanning(true)
 
     try {
       const phoneFiles = await window.api.scanFiles(device.id, selectedFolders)
       const pcCheckResults = await window.api.checkPCForFiles(destPath, phoneFiles)
+      const phoneFilesByPath = new Map(phoneFiles.map(file => [file.path, file]))
 
       const newFiles = []
       const existingFiles = []
 
       for (const result of pcCheckResults) {
-        const phoneFile = phoneFiles.find(p => p.path === result.phonePath)
+        const phoneFile = phoneFilesByPath.get(result.phonePath)
         if (result.existsOnPC) {
           existingFiles.push({ ...phoneFile, pcPaths: result.pcPaths })
         } else {
@@ -191,6 +194,7 @@ export default function App() {
     const { newFiles, dest, deviceName } = scanResult
     const inboxFolder = `${dest}/${deviceName}-inbox`
     let completed = 0
+    let failed = 0
     const total = newFiles.length
 
     for (const file of newFiles) {
@@ -200,17 +204,24 @@ export default function App() {
         await window.api.pullFile(device.id, file.path, destPath)
       } catch (err) {
         console.error(`Failed: ${file.path}`, err)
+        failed++
       }
       completed++
     }
 
     await db.addSyncRecord({
-      new_count: newFiles.length,
+      new_count: completed - failed,
       total_size: newFiles.reduce((s, f) => s + f.size, 0),
       inbox: inboxFolder
     })
 
     setScanResult(null)
+    setSyncSummary({
+      copied: completed - failed,
+      failed,
+      skipped: scanResult.existingFiles.length,
+      inbox: inboxFolder
+    })
     setIsSyncing(false)
     loadHistory()
 
@@ -258,7 +269,10 @@ export default function App() {
             onBrowse={handleBrowse}
             onScan={handleScan}
             onSync={handleSync}
-            onCancelScan={() => setScanResult(null)}
+            onCancelScan={() => { setScanResult(null); setSyncSummary(null) }}
+            syncSummary={syncSummary}
+            onOpenFolder={() => window.api.openFolder(syncSummary?.inbox)}
+            onNewScan={() => setSyncSummary(null)}
           />
         )}
         {route === '/quick-share' && <QuickSharePage />}

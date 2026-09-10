@@ -1,4 +1,4 @@
-import { AlertTriangle, Smartphone, AlertCircle, RefreshCw } from 'lucide-react'
+import { AlertTriangle, Smartphone, AlertCircle, RefreshCw, Check } from 'lucide-react'
 
 const SETUP_CONTENT = {
   checking: {
@@ -7,7 +7,7 @@ const SETUP_CONTENT = {
     description: 'Looking for a connected device.'
   },
   connected: {
-    icon: Smartphone,
+    icon: Check,
     title: 'Phone detected',
     description: 'Your phone is connected over USB and ready for backup.'
   },

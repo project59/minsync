@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld('api', {
   scanFiles: (deviceId, folders) => ipcRenderer.invoke('adb:scan', deviceId, folders),
   pullFile: (deviceId, src, dest) => ipcRenderer.invoke('adb:pull', deviceId, src, dest),
   pickFolder: () => ipcRenderer.invoke('dialog:pickFolder'),
+  openFolder: (folderPath) => ipcRenderer.invoke('files:openFolder', folderPath),
   checkPCForFiles: (destPath, phoneFiles) => ipcRenderer.invoke('files:checkPC', destPath, phoneFiles),
 
   adbVersion: () => ipcRenderer.invoke('adb:version'),
