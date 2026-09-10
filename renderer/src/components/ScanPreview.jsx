@@ -24,13 +24,13 @@ export function ScanPreview({ result, onSync, onCancel }) {
             <FileCheck className="w-5 h-5 text-action" />
             <span className="text-2xl font-bold text-action">{existingFiles.length}</span>
           </div>
-          <span className="text-xs text-taupe-500 dark:text-taupe-400">Already on PC</span>
+          <span className="text-xs text-taupe-500 dark:text-taupe-400">Already backed up</span>
         </div>
       </div>
 
       {existingFiles.length > 0 && (
         <p className="text-xs text-taupe-500 dark:text-taupe-400 mb-4">
-          {existingFiles.length} files will be skipped (found elsewhere in destination folder)
+          {existingFiles.length} files will be skipped (already exist in destination folder)
         </p>
       )}
 

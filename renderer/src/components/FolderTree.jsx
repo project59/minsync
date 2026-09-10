@@ -1,55 +1,40 @@
 import { useState } from 'react'
-import { Folder, FolderOpen, ChevronRight, ChevronDown } from 'lucide-react'
+import { File, Folder, FolderOpen, ChevronRight, ChevronDown } from 'lucide-react'
 
-function getAllDescendantPaths(node) {
+function getSelectablePaths(node) {
   const paths = []
   if (node.path) paths.push(node.path)
-  for (const child of node.children) {
-    paths.push(...getAllDescendantPaths(child))
-  }
-  return paths
-}
-
-function getChildPaths(node) {
-  const paths = []
-  for (const child of node.children) {
-    if (child.path) paths.push(child.path)
-    paths.push(...getChildPaths(child))
+  for (const child of node.children || []) {
+    paths.push(...getSelectablePaths(child))
   }
   return paths
 }
 
 function getFileCount(node) {
-  let count = 0
-  for (const child of node.children) {
-    if (!child.children || child.children.length === 0) {
-      count++
-    } else {
-      count += getFileCount(child)
-    }
-  }
-  return count
+  if (node.type === 'file') return 1
+  return (node.children || []).reduce((count, child) => count + getFileCount(child), 0)
 }
 
 function TreeNode({ node, selected, onChange, defaultOpen = false }) {
   const [isOpen, setIsOpen] = useState(defaultOpen)
-  const isFolder = node.children && node.children.length > 0
-  const descendantPaths = isFolder ? getAllDescendantPaths(node) : []
-  const childPaths = isFolder ? getChildPaths(node) : []
+  const isFolder = node.type !== 'file'
+  const children = node.children || []
+  const isExpandable = isFolder && children.length > 0
+  const selectablePaths = getSelectablePaths(node)
   const fileCount = isFolder ? getFileCount(node) : 0
 
-  const allDescendantsSelected = isFolder && childPaths.length > 0 &&
-    childPaths.every(p => selected.includes(p))
-  const someDescendantsSelected = isFolder && childPaths.some(p => selected.includes(p))
+  const allDescendantsSelected = isFolder && selectablePaths.length > 0 &&
+    selectablePaths.every(p => selected.includes(p))
+  const someDescendantsSelected = isFolder && selectablePaths.some(p => selected.includes(p))
 
   const isIndeterminate = someDescendantsSelected && !allDescendantsSelected
 
   function handleCheckboxChange(checked) {
     if (checked) {
-      const newSelected = [...new Set([...selected, node.path, ...descendantPaths])]
+      const newSelected = [...new Set([...selected, ...selectablePaths])]
       onChange(newSelected)
     } else {
-      const pathsToRemove = new Set([node.path, ...descendantPaths])
+      const pathsToRemove = new Set(selectablePaths)
       onChange(selected.filter(p => !pathsToRemove.has(p)))
     }
   }
@@ -73,7 +58,7 @@ function TreeNode({ node, selected, onChange, defaultOpen = false }) {
           onChange={(e) => handleDescendantChange(node.path, e.target.checked)}
           className="rounded border-taupe-300 text-primary focus:ring-primary/30"
         />
-        <Folder className="w-4 h-4 text-taupe-400" />
+        <File className="w-4 h-4 text-taupe-400" />
         <span className="text-sm text-taupe-700 dark:text-taupe-300">{node.name}</span>
       </label>
     )
@@ -89,17 +74,21 @@ function TreeNode({ node, selected, onChange, defaultOpen = false }) {
           onChange={(e) => handleCheckboxChange(e.target.checked)}
           className="rounded border-taupe-300 text-primary focus:ring-primary/30"
         />
-        {isOpen ? (
+        {isOpen && isExpandable ? (
           <FolderOpen className="w-4 h-4 text-taupe-400" />
         ) : (
           <Folder className="w-4 h-4 text-taupe-400" />
         )}
         <span className="text-sm font-medium text-taupe-700 dark:text-taupe-300 flex-1">{node.name}</span>
+        <span className="text-xs text-taupe-400 dark:text-taupe-500">
+          {fileCount} file{fileCount !== 1 ? 's' : ''}
+        </span>
         <button
           onClick={() => setIsOpen(!isOpen)}
+          disabled={!isExpandable}
           className="p-0.5 rounded hover:bg-taupe-200 dark:hover:bg-taupe-600 transition-colors duration-150"
         >
-          {isOpen ? (
+          {isOpen && isExpandable ? (
             <ChevronDown className="w-4 h-4 text-taupe-400" />
           ) : (
             <ChevronRight className="w-4 h-4 text-taupe-400" />
@@ -108,7 +97,7 @@ function TreeNode({ node, selected, onChange, defaultOpen = false }) {
       </div>
       {isOpen && (
         <div className="ml-5 border-l border-taupe-200 dark:border-taupe-700 pl-2">
-          {node.children.map(child => (
+          {children.map(child => (
             <TreeNode
               key={child.path || child.name}
               node={child}
@@ -117,11 +106,6 @@ function TreeNode({ node, selected, onChange, defaultOpen = false }) {
               defaultOpen={false}
             />
           ))}
-          {fileCount > 0 && (
-            <div className="text-xs text-taupe-500 dark:text-taupe-400 px-2 py-1">
-              +{fileCount} file{fileCount !== 1 ? 's' : ''}
-            </div>
-          )}
         </div>
       )}
     </div>
@@ -137,7 +121,7 @@ export function FolderTree({ tree, selected, onChange }) {
           node={node}
           selected={selected}
           onChange={onChange}
-          defaultOpen={true}
+          defaultOpen={false}
         />
       ))}
     </div>

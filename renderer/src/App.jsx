@@ -29,6 +29,8 @@ export default function App() {
   const [destPath, setDestPath] = useState('')
   const [selectedFolders, setSelectedFolders] = useState([])
   const [folderTree, setFolderTree] = useState([])
+  const [includeAndroid, setIncludeAndroid] = useState(false)
+  const [treeReloadKey, setTreeReloadKey] = useState(0)
   const [isLoadingTree, setIsLoadingTree] = useState(false)
   const [isScanning, setIsScanning] = useState(false)
   const [isSyncing, setIsSyncing] = useState(false)
@@ -74,7 +76,9 @@ export default function App() {
     const dest = await db.getConfig('dest_path')
     if (dest) setDestPath(dest)
     const folders = await db.getConfig('selected_folders')
-    if (folders) setSelectedFolders(folders)
+    if (folders) {
+      setSelectedFolders(folders.filter(folder => includeAndroid || (folder !== '/sdcard/Android' && !folder.startsWith('/sdcard/Android/'))))
+    }
   }
 
   async function loadHistory() {
@@ -97,12 +101,35 @@ export default function App() {
     }
     setDevice(status.device)
     setDeviceStatus('connected')
-    if (folderTree.length === 0 && !isLoadingTree) {
-      setIsLoadingTree(true)
-      const tree = await window.api.getFolderTree(status.device.id)
-      setFolderTree(tree)
-      setIsLoadingTree(false)
+  }
+
+  useEffect(() => {
+    if (!device?.id) return
+    let cancelled = false
+    setIsLoadingTree(true)
+    window.api.getFolderTree(device.id, includeAndroid).then(tree => {
+      if (!cancelled) {
+        setFolderTree(tree)
+        setIsLoadingTree(false)
+      }
+    }).catch(() => {
+      if (!cancelled) {
+        setFolderTree([])
+        setIsLoadingTree(false)
+      }
+    })
+    return () => { cancelled = true }
+  }, [device?.id, includeAndroid, treeReloadKey])
+
+  function handleIncludeAndroidChange(value) {
+    setIncludeAndroid(value)
+    if (!value) {
+      setSelectedFolders(current => current.filter(folder => folder !== '/sdcard/Android' && !folder.startsWith('/sdcard/Android/')))
     }
+  }
+
+  function handleReloadTree() {
+    setTreeReloadKey(key => key + 1)
   }
 
   async function handleWifiConnected(connectedDevice) {
@@ -218,6 +245,9 @@ export default function App() {
             destPath={destPath}
             setDestPath={setDestPath}
             folderTree={folderTree}
+            includeAndroid={includeAndroid}
+            onIncludeAndroidChange={handleIncludeAndroidChange}
+            onReloadTree={handleReloadTree}
             selectedFolders={selectedFolders}
             setSelectedFolders={setSelectedFolders}
             isLoadingTree={isLoadingTree}

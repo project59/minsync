@@ -424,25 +424,29 @@ ipcMain.handle('adb:status', async () => {
   }
 })
 
-ipcMain.handle('adb:tree', async (_, deviceId) => {
+ipcMain.handle('adb:tree', async (_, deviceId, includeAndroid = false) => {
   try {
     const seen = new Set()
     const dirs = []
 
-    for (let depth = 1; depth <= 4; depth++) {
+    for (let depth = 1; ; depth++) {
+      const dirsBeforeDepth = seen.size
       const stars = '/*'.repeat(depth)
       const { stdout } = await safeAdbShell(deviceId, `ls -d /sdcard${stars}/ 2>/dev/null`)
       for (const line of stdout.split('\n')) {
         const d = line.trim().replace(/\/$/, '')
-        if (d && d.startsWith('/sdcard') && d !== '/sdcard' && !seen.has(d)) {
+        const isAndroidPath = d === '/sdcard/Android' || d.startsWith('/sdcard/Android/')
+        if (d && d.startsWith('/sdcard') && d !== '/sdcard' && (includeAndroid || !isAndroidPath) && !seen.has(d)) {
           seen.add(d)
           dirs.push(d)
         }
       }
+      if (seen.size === dirsBeforeDepth) break
     }
 
     dirs.sort()
     const tree = []
+    const directoryNodes = new Map()
     for (const dir of dirs) {
       const parts = dir.replace('/sdcard/', '').split('/')
       let current = tree
@@ -450,12 +454,40 @@ ipcMain.handle('adb:tree', async (_, deviceId) => {
       for (const part of parts) {
         node = current.find(n => n.name === part)
         if (!node) {
-          node = { name: part, path: '', children: [] }
+          node = { name: part, path: '', type: 'folder', children: [] }
           current.push(node)
         }
         current = node.children
       }
       node.path = dir
+      directoryNodes.set(dir, node)
+    }
+
+    for (let start = 0; start < dirs.length; start += 40) {
+      const batch = dirs.slice(start, start + 40)
+      const command = batch.map(dir => (
+        `printf '__PHONESYNC_DIR__%s\\n' "${dir}"; ls -l "${dir}" 2>/dev/null`
+      )).join('; ')
+      const { stdout } = await safeAdbShell(deviceId, command)
+      let currentDir = null
+      for (const rawLine of stdout.split('\n')) {
+        const line = rawLine.trim()
+        if (line.startsWith('__PHONESYNC_DIR__')) {
+          currentDir = line.slice('__PHONESYNC_DIR__'.length)
+          continue
+        }
+        if (!currentDir || !line.startsWith('-')) continue
+        const parts = line.split(/\s+/)
+        if (parts.length < 8) continue
+        const name = parts.slice(7).join(' ')
+        if (!name) continue
+        directoryNodes.get(currentDir)?.children.push({
+          name,
+          path: `${currentDir}/${name}`,
+          type: 'file',
+          children: []
+        })
+      }
     }
     return tree
   } catch {
@@ -466,10 +498,19 @@ ipcMain.handle('adb:tree', async (_, deviceId) => {
 ipcMain.handle('adb:scan', async (_, deviceId, folders) => {
   const allFiles = []
   for (const folder of folders) {
+    const { stdout: entry } = await safeAdbShell(deviceId, `ls -ld "${folder}" 2>/dev/null`)
+    if (entry.trim().startsWith('-')) {
+      const parsed = parseLsRecursive(`${folder}:\n${entry}`)
+      if (parsed[0]) {
+        parsed[0].path = folder
+        allFiles.push(parsed[0])
+      }
+      continue
+    }
     const { stdout } = await safeAdbShell(deviceId, `ls -lR "${folder}" 2>/dev/null`)
     allFiles.push(...parseLsRecursive(stdout))
   }
-  return allFiles
+  return [...new Map(allFiles.map(file => [file.path, file])).values()]
 })
 
 function parseLsRecursive(output) {

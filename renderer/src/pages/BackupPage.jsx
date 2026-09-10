@@ -12,6 +12,9 @@ export function BackupPage({
   destPath,
   setDestPath,
   folderTree,
+  includeAndroid,
+  onIncludeAndroidChange,
+  onReloadTree,
   selectedFolders,
   setSelectedFolders,
   isLoadingTree,
@@ -36,12 +39,12 @@ export function BackupPage({
     }
   }, [connectionType, deviceStatus, device?.transport, step])
 
-  const stepTitles = ['Choose connection', 'Set up your connection', 'Choose a destination folder', 'Choose folders to back up']
+  const stepTitles = ['Choose connection', 'Set up your connection', 'Choose a destination folder', 'Choose files to back up']
   const stepDescriptions = [
     'Choose how you want to connect your phone for this backup.',
     connectionType === 'usb' ? 'Connect your phone with a USB cable and complete the setup.' : 'Pair your phone using Android wireless debugging.',
     'Choose where PhoneSync should save the files on this computer.',
-    'Select the folders you want to include in this backup.'
+    'Select the folders and files you want to include in this backup.'
   ]
   const connectedWithSelectedMethod = deviceStatus === 'connected' && device?.transport === connectionType
 
@@ -69,7 +72,7 @@ export function BackupPage({
   return (
     <main className="space-y-5">
       <section className="page-intro">
-        <h1>Bring your phone home.</h1>
+        <h1>Backup Files</h1>
         <p className="page-lede">Select the folders that matter, scan for changes, and keep a clean local copy without guessing what has already been saved.</p>
       </section>
 
@@ -125,7 +128,15 @@ export function BackupPage({
 
       {step === 4 && (
         <section className="space-y-3">
-          <FolderSyncSection folderTree={folderTree} selectedFolders={selectedFolders} setSelectedFolders={setSelectedFolders} isLoadingTree={isLoadingTree} />
+          <FolderSyncSection
+            folderTree={folderTree}
+            includeAndroid={includeAndroid}
+            onIncludeAndroidChange={onIncludeAndroidChange}
+            onReloadTree={onReloadTree}
+            selectedFolders={selectedFolders}
+            setSelectedFolders={setSelectedFolders}
+            isLoadingTree={isLoadingTree}
+          />
           {scanResult && <ScanPreview result={scanResult} onSync={onSync} onCancel={onCancelScan} />}
           <StepNavigation
             nextDisabled={isScanning || selectedFolders.length === 0 || !destPath}
