@@ -5,7 +5,6 @@ export function HomePage({ onNavigate, deviceStatus }) {
     <main>
       <section className="hero-grid">
         <div className="hero-copy">
-          <p className="eyebrow">PhoneSync / local utility</p>
           <h1>A calmer way to move the things that matter.</h1>
           <p className="page-lede">Back up your Android phone and share files over your own network. No accounts, no cloud detours, no mystery.</p>
           <div className="flex flex-wrap items-center gap-3 mt-7">

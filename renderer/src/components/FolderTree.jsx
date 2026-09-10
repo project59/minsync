@@ -130,7 +130,7 @@ function TreeNode({ node, selected, onChange, defaultOpen = false }) {
 
 export function FolderTree({ tree, selected, onChange }) {
   return (
-    <div className="max-h-96 overflow-y-auto rounded-xl bg-taupe-100 dark:bg-taupe-800/50 p-2 space-y-1">
+    <div className="max-h-96 overflow-y-auto rounded-xl bg-gray-50 dark:bg-taupe-800/50 p-2 space-y-1">
       {tree.map(node => (
         <TreeNode
           key={node.path || node.name}

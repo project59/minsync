@@ -6,7 +6,7 @@ export function ScanPreview({ result, onSync, onCancel }) {
   const sizeMB = (totalSize / (1024 * 1024)).toFixed(1)
 
   return (
-    <div className="card">
+    <div className="">
       <h2 className="font-semibold text-taupe-700 dark:text-taupe-200 mb-3">Scan results</h2>
       <div className="grid grid-cols-2 gap-3 mb-4">
         <div className="bg-taupe-100 dark:bg-taupe-700/50 rounded-xl p-4 text-center">

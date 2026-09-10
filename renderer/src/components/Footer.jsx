@@ -24,8 +24,6 @@ export function Footer({ onNavigate }) {
       </div>
       <div className="footer-bottom">
         <span>© 2026 PhoneSync</span>
-        <span>Nothing leaves your network unless you ask it to.</span>
-        <span>↑ top</span>
       </div>
     </footer>
   )

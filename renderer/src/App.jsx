@@ -37,7 +37,6 @@ export default function App() {
   const [route, setRoute] = useState(getRoute)
   const [historyModalOpen, setHistoryModalOpen] = useState(false)
   const [wifiModalOpen, setWifiModalOpen] = useState(false)
-  const [wifiDisconnecting, setWifiDisconnecting] = useState(false)
 
   useEffect(() => {
     const handleHashChange = () => setRoute(getRoute())
@@ -113,17 +112,6 @@ export default function App() {
       setDeviceStatus('connected')
     }
     await pollStatus()
-  }
-
-  async function handleWifiDisconnect() {
-    if (!device) return
-    setWifiDisconnecting(true)
-    await window.api.wifi.disconnect(device.id)
-    setWifiDisconnecting(false)
-    setDevice(null)
-    setDeviceStatus('no_device')
-    setFolderTree([])
-    setScanResult(null)
   }
 
   async function handleBrowse() {
@@ -219,10 +207,6 @@ export default function App() {
         onNavigate={navigate}
         historyCount={history.length}
         onHistoryOpen={() => setHistoryModalOpen(true)}
-        wifiDisconnecting={wifiDisconnecting}
-        isSyncing={isSyncing}
-        onWifiConnect={() => setWifiModalOpen(true)}
-        onWifiDisconnect={handleWifiDisconnect}
       />
 
       <div className="app-content">

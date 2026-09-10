@@ -3,16 +3,7 @@ import { FolderTree } from './FolderTree'
 
 export function FolderSyncSection({ folderTree, selectedFolders, setSelectedFolders, isLoadingTree }) {
   return (
-    <div className="card">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <FolderSync className="w-4 h-4 text-taupe-500" />
-          <span className="font-semibold text-taupe-700 dark:text-taupe-200">Folders to Sync</span>
-        </div>
-        <button onClick={() => setSelectedFolders([])} className="btn-secondary">
-          Clear all
-        </button>
-      </div>
+    <div className="">
       {folderTree.length > 0 ? (
         <FolderTree
           tree={folderTree}
@@ -25,6 +16,9 @@ export function FolderSyncSection({ folderTree, selectedFolders, setSelectedFold
           Loading folders...
         </div>
       )}
+      <button onClick={() => setSelectedFolders([])} className="btn-secondary mt-3">
+        Clear all
+      </button>
     </div>
   )
 }

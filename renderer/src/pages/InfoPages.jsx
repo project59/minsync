@@ -3,7 +3,6 @@ import { ChevronDown } from 'lucide-react'
 export function PricingPage() {
   return (
     <main className="info-page">
-      <p className="eyebrow">04 / pricing</p>
       <h1>Simple tools. No surprise plans.</h1>
       <p className="page-lede">PhoneSync is currently free to use. These placeholder plans show where future capabilities may land.</p>
       <div className="pricing-grid">
@@ -24,7 +23,6 @@ const FAQS = [
 export function FAQPage() {
   return (
     <main className="info-page">
-      <p className="eyebrow">05 / questions</p>
       <h1>The useful answers, in one place.</h1>
       <p className="page-lede">A few notes for getting started. This is a placeholder FAQ and will grow with the app.</p>
       <div className="faq-list">

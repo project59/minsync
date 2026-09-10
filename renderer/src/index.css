@@ -71,8 +71,8 @@ body {
   }
 
   .card {
-    @apply bg-white/90 dark:bg-taupe-800/80 rounded-2xl p-4
-           shadow-sm border border-taupe-200 dark:border-taupe-700;
+    @apply bg-taupe-50 dark:bg-taupe-800/80 rounded-2xl p-4
+            border border-taupe-200 dark:border-taupe-700;
   }
 
   .site-header {
@@ -120,11 +120,11 @@ body {
   }
 
   .app-content {
-    @apply mx-auto w-full max-w-5xl;
+    @apply mx-auto w-full ;
   }
 
   .page-intro {
-    @apply max-w-3xl border-b border-taupe-200 pb-8 dark:border-taupe-700;
+    @apply max-w-3xl border-b border-taupe-200 pt-8 pb-8 dark:border-taupe-700 sm:pt-16;
   }
 
   .page-intro h1,

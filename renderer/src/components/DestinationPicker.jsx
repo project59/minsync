@@ -2,17 +2,13 @@ import { FolderOpen } from 'lucide-react'
 
 export function DestinationPicker({ destPath, onChange, onBrowse }) {
   return (
-    <div className="card">
-      <div className="flex items-center gap-2 mb-3">
-        <FolderOpen className="w-4 h-4 text-taupe-500" />
-        <span className="font-semibold text-taupe-700 dark:text-taupe-200">Destination folder</span>
-      </div>
+
       <div className="flex items-center gap-2">
         <input
           type="text"
           value={destPath}
           onChange={(e) => onChange(e.target.value)}
-          className="input-main"
+          className="input-main w-full max-w-md"
           disabled
           placeholder="Select a destination folder..."
         />
@@ -20,6 +16,5 @@ export function DestinationPicker({ destPath, onChange, onBrowse }) {
           Browse
         </button>
       </div>
-    </div>
   )
 }

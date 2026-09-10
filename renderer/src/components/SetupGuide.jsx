@@ -1,10 +1,15 @@
-import { AlertTriangle, Smartphone, AlertCircle, RefreshCw, Wifi } from 'lucide-react'
+import { AlertTriangle, Smartphone, AlertCircle, RefreshCw } from 'lucide-react'
 
 const SETUP_CONTENT = {
   checking: {
     icon: RefreshCw,
     title: 'Checking for phone...',
     description: 'Looking for a connected device.'
+  },
+  connected: {
+    icon: Smartphone,
+    title: 'Phone detected',
+    description: 'Your phone is connected over USB and ready for backup.'
   },
   adb_not_found: {
     icon: AlertTriangle,
@@ -23,7 +28,7 @@ const SETUP_CONTENT = {
   }
 }
 
-export function SetupGuide({ status, onWifiConnect }) {
+export function SetupGuide({ status }) {
   const content = SETUP_CONTENT[status] || SETUP_CONTENT.adb_error
   const Icon = content.icon
 
@@ -67,14 +72,6 @@ export function SetupGuide({ status, onWifiConnect }) {
           </ol>
           <p className="text-xs text-taupe-400 mt-4">After connecting, the app will detect your phone automatically.</p>
 
-          <div className="mt-5 pt-5 border-t border-taupe-200 dark:border-taupe-700">
-            <p className="text-sm text-taupe-600 dark:text-taupe-400 mb-3">
-              Prefer wireless? Connect over WiFi instead — no cable needed (Android 11+).
-            </p>
-            <button onClick={onWifiConnect} className="btn-secondary flex items-center gap-2">
-              <Wifi className="w-4 h-4" /> Connect via WiFi
-            </button>
-          </div>
         </div>
       )}
     </div>
