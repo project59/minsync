@@ -15,6 +15,10 @@ function getFileCount(node) {
   return (node.children || []).reduce((count, child) => count + getFileCount(child), 0)
 }
 
+function isAncestorPath(ancestor, path) {
+  return path.startsWith(`${ancestor}/`)
+}
+
 function TreeNode({ node, selected, onChange, defaultOpen = false }) {
   const [isOpen, setIsOpen] = useState(defaultOpen)
   const isFolder = node.type !== 'file'
@@ -35,7 +39,9 @@ function TreeNode({ node, selected, onChange, defaultOpen = false }) {
       onChange(newSelected)
     } else {
       const pathsToRemove = new Set(selectablePaths)
-      onChange(selected.filter(p => !pathsToRemove.has(p)))
+      onChange(selected.filter(p => (
+        !pathsToRemove.has(p) && !isAncestorPath(p, node.path)
+      )))
     }
   }
 
@@ -44,7 +50,7 @@ function TreeNode({ node, selected, onChange, defaultOpen = false }) {
     if (checked) {
       newSelected = [...new Set([...selected, path])]
     } else {
-      newSelected = selected.filter(p => p !== path)
+      newSelected = selected.filter(p => p !== path && !isAncestorPath(p, path))
     }
     onChange(newSelected)
   }

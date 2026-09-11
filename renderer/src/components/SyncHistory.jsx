@@ -6,7 +6,7 @@ export function SyncHistory({ history, open, onClose }) {
     <Dialog open={open} onClose={onClose} className="relative z-50">
       <div className="fixed inset-0 bg-black/50" aria-hidden="true" />
       <div className="fixed inset-0 flex items-center justify-center p-4">
-        <DialogPanel className="bg-white dark:bg-taupe-800 rounded-2xl max-w-lg w-full max-h-[90vh] overflow-auto shadow-xl border border-taupe-200 dark:border-taupe-700">
+        <DialogPanel className="bg-white dark:bg-taupe-800 rounded-2xl max-w-lg w-full max-h-[80vh] flex flex-col overflow-hidden shadow-xl border border-taupe-200 dark:border-taupe-700">
           <div className="flex items-center justify-between p-4 border-b border-taupe-200 dark:border-taupe-700">
             <div className="flex items-center gap-2">
               <History className="w-5 h-5 text-taupe-500" />
@@ -19,7 +19,7 @@ export function SyncHistory({ history, open, onClose }) {
               <X className="w-4 h-4" />
             </button>
           </div>
-          <div className="p-4">
+          <div className="p-4 overflow-y-auto">
             {history.length === 0 ? (
               <p className="text-taupe-400 italic text-sm py-2">No syncs yet</p>
             ) : (

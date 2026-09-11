@@ -28,9 +28,12 @@ const SETUP_CONTENT = {
   }
 }
 
-export function SetupGuide({ status }) {
+export function SetupGuide({ status, connectionType = 'usb' }) {
   const content = SETUP_CONTENT[status] || SETUP_CONTENT.adb_error
   const Icon = content.icon
+  const description = status === 'connected' && connectionType === 'wifi'
+    ? 'Your phone is connected over Wi-Fi and ready for backup.'
+    : content.description
 
   return (
     <div className="space-y-3">
@@ -39,7 +42,7 @@ export function SetupGuide({ status }) {
           <Icon className={`w-6 h-6 shrink-0 mt-0.5 ${status === 'checking' ? 'animate-spin' : ''}`} />
           <div>
             <h2 className="text-lg font-semibold mb-1">{content.title}</h2>
-            <p className="text-sm text-white/80">{content.description}</p>
+            <p className="text-sm text-white/80">{description}</p>
           </div>
         </div>
       </div>

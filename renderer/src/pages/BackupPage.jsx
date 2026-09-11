@@ -34,13 +34,13 @@ export function BackupPage({
   const [connectionType, setConnectionType] = useState(null)
 
   useEffect(() => {
-    if (!connectionType) return
+    if (!connectionType || syncSummary) return
 
     const connectedWithSelectedMethod = deviceStatus === 'connected' && device?.transport === connectionType
     if (!connectedWithSelectedMethod && step > 2) {
       setStep(2)
     }
-  }, [connectionType, deviceStatus, device?.transport, step])
+  }, [connectionType, deviceStatus, device?.transport, step, syncSummary])
 
   const stepTitles = ['Choose connection', 'Set up your connection', 'Choose a Sync folder', 'Choose files to back up']
   const stepDescriptions = [
@@ -106,16 +106,14 @@ export function BackupPage({
 
       {step === 2 && (
         <section className="space-y-3">
-          {connectionType === 'usb' ? (
-            <>
-              <SetupGuide status={deviceStatus} />
-            </>
+          {connectedWithSelectedMethod ? (
+            <SetupGuide status={deviceStatus} connectionType={connectionType} />
+          ) : connectionType === 'usb' ? (
+            <SetupGuide status={deviceStatus} connectionType={connectionType} />
           ) : (
             <div className="card space-y-3">
-              <p className="text-sm text-taupe-500 dark:text-taupe-400">{device?.transport === 'wifi' ? 'Your phone is ready for backup.' : 'Finish pairing in the Wi-Fi setup window.'}</p>
-              {device?.transport !== 'wifi' && (
-                <button onClick={onWifiConnect} className="btn-secondary w-full">Open Wi-Fi setup</button>
-              )}
+              <p className="text-sm text-taupe-500 dark:text-taupe-400">Finish pairing in the Wi-Fi setup window.</p>
+              <button onClick={onWifiConnect} className="btn-secondary w-full">Open Wi-Fi setup</button>
             </div>
           )}
           <StepNavigation nextDisabled={!connectedWithSelectedMethod} onNext={() => setStep(3)} />

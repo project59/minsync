@@ -4,7 +4,7 @@ import {
 } from '@headlessui/react'
 import {
   X, Wifi, RefreshCw, Link2, Search, AlertTriangle, ArrowRight,
-  CheckCircle2, Smartphone
+  CheckCircle2, Smartphone, Trash2
 } from 'lucide-react'
 
 export function WifiConnect({ onClose, onConnected, db }) {
@@ -68,13 +68,18 @@ export function WifiConnect({ onClose, onConnected, db }) {
       setPairMsg({ ok: true, text: `Connected to ${r.device.model}` })
       if (db?.db) {
         const entry = { ip: pairIp, model: r.device.model, ts: Date.now() }
-        db.setConfig('wifi_last_device', entry)
+        await db.setConfig('wifi_last_device', entry)
       }
       onConnected?.(r.device)
       setTimeout(onClose, 800)
     } else if (r.ok && r.paired) {
+      if (db?.db) {
+        const entry = { ip: pairIp, model: 'Device', ts: Date.now() }
+        await db.setConfig('wifi_last_device', entry)
+        setLastDevice(entry)
+      }
       setPairMsg({ ok: true, text: 'Paired. Now open the Reconnect tab and tap your device.' })
-      refreshMdns()
+      await refreshMdns()
     } else {
       setPairMsg({ ok: false, text: r.error || 'Pairing failed' })
     }
@@ -87,7 +92,7 @@ export function WifiConnect({ onClose, onConnected, db }) {
     setConnectBusyId(null)
     if (r.ok) {
       if (db?.db) {
-        db.setConfig('wifi_last_device', { ip, model: r.device.model, ts: Date.now() })
+        await db.setConfig('wifi_last_device', { ip, model: r.device.model, ts: Date.now() })
       }
       onConnected?.(r.device)
       onClose?.()
@@ -115,6 +120,11 @@ export function WifiConnect({ onClose, onConnected, db }) {
       return
     }
     await handleConnect(match.ip, match.port, id)
+  }
+
+  async function handleDeleteLastDevice() {
+    if (db?.db) await db.deleteConfig('wifi_last_device')
+    setLastDevice(null)
   }
 
   const supportsWifi = version?.supportsWifi
@@ -275,7 +285,17 @@ export function WifiConnect({ onClose, onConnected, db }) {
 
                     {lastDevice && (
                       <div className="mb-3">
-                        <p className="text-xs text-taupe-400 mb-1">Last used</p>
+                        <div className="flex items-center justify-between mb-1">
+                          <p className="text-xs text-taupe-400">Last used</p>
+                          <button
+                            onClick={handleDeleteLastDevice}
+                            className="btn-danger p-1.5"
+                            aria-label={`Forget ${lastDevice.model || 'last used device'}`}
+                            title="Forget this device"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                         <button
                           onClick={() => handleConnectByIp(lastDevice.ip, `last-${lastDevice.ip}`)}
                           disabled={connectBusyId === `last-${lastDevice.ip}`}

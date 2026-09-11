@@ -408,7 +408,7 @@ ipcMain.handle('adb:status', async () => {
     }
     const parts = lines[0].split(/\s+/)
     const transportToken = parts.find(p => p.startsWith('transport:'))
-    const transport = transportToken && transportToken.includes('udp') ? 'wifi' : 'usb'
+    const transport = (transportToken && transportToken.includes('udp')) || /^.+:\d+$/.test(parts[0]) ? 'wifi' : 'usb'
     return {
       available: true,
       error: null,
@@ -707,7 +707,7 @@ async function doAdbMdns() {
     const devices = []
     const seen = new Set()
     for (const line of stdout.split('\n')) {
-      const m = line.match(/^\s*_adb-tls-connect\._tcp\s+(\S+):(\d+)\s*$/)
+      const m = line.match(/_?adb-tls-connect\._tcp\s+(\S+):(\d+)(?:\s|$)/i)
       if (m) {
         const ip = m[1]
         const port = parseInt(m[2])
@@ -809,10 +809,14 @@ ipcMain.handle('adb:wifi:disconnect', async (_, target) => {
 async function doPairAndConnect(ip, pairPort, code) {
   const pairRes = await doAdbPair(ip, pairPort, code)
   if (!pairRes.ok) return pairRes
-  const mdnsRes = await doAdbMdns()
-  const match = mdnsRes.devices?.find(d => d.ip === ip)
-  if (match) {
-    return await doAdbConnect(match.ip, match.port)
+  // The connect service can take a moment to appear after pairing.
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (attempt > 0) await new Promise(resolve => setTimeout(resolve, 500))
+    const mdnsRes = await doAdbMdns()
+    const match = mdnsRes.devices?.find(d => d.ip === ip)
+    if (match) {
+      return await doAdbConnect(match.ip, match.port)
+    }
   }
   return { ok: true, paired: true, message: 'Paired. Tap the device in the reconnect list to connect.', connectPort: null }
 }

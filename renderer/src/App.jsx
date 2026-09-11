@@ -224,13 +224,6 @@ export default function App() {
     })
     setIsSyncing(false)
     loadHistory()
-
-    if (device?.transport === 'wifi') {
-      try { await window.api.wifi.disconnect(device.id) } catch { }
-      setDevice(null)
-      setDeviceStatus('no_device')
-      setFolderTree([])
-    }
   }
 
   return (

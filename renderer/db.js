@@ -68,6 +68,14 @@ export class SyncDB {
     return this._put('config', { key, value })
   }
 
+  async deleteConfig(key) {
+    return new Promise((resolve, reject) => {
+      const req = this.db.transaction('config', 'readwrite').objectStore('config').delete(key)
+      req.onsuccess = () => resolve()
+      req.onerror = (e) => reject(e.target.error)
+    })
+  }
+
   // Sync history
   async addSyncRecord(record) {
     return this._put('syncs', { ...record, timestamp: Date.now() })
