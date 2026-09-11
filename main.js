@@ -333,8 +333,13 @@ function stopShareServer() {
 // ---------- end Quick Share ----------
 
 function findAdb() {
-  const bundled = path.join(__dirname, 'bin', process.platform === 'win32' ? 'adb.exe' : 'adb')
-  if (fs.existsSync(bundled)) return bundled
+  const adbName = process.platform === 'win32' ? 'adb.exe' : 'adb'
+  const bundledPaths = [
+    path.join(__dirname, 'bin', adbName),
+    ...(app.isPackaged ? [path.join(process.resourcesPath, 'bin', adbName)] : [])
+  ]
+  const bundled = bundledPaths.find(candidate => fs.existsSync(candidate))
+  if (bundled) return bundled
 
   try {
     const { stdout } = require('child_process').execSync('which adb', { stdio: 'pipe' })
