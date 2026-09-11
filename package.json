@@ -3,6 +3,7 @@
   "version": "1.0.1",
   "description": "One-way incremental Android backup via ADB",
   "main": "main.js",
+  "desktopName": "phonesync",
   "author": {
     "name": "Project59",
     "email": "project59@users.noreply.github.com"
@@ -38,7 +39,6 @@
   "build": {
     "appId": "com.project59.minsync",
     "productName": "PhoneSync",
-    "desktopName": "phonesync",
     "directories": {
       "output": "release"
     },
