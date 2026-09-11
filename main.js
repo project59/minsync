@@ -565,6 +565,13 @@ ipcMain.handle('files:openFolder', async (_, folderPath) => {
   return true
 })
 
+ipcMain.handle('files:openFile', async (_, filePath) => {
+  if (!filePath || typeof filePath !== 'string') return false
+  const error = await shell.openPath(filePath)
+  if (error) throw new Error(error)
+  return true
+})
+
 ipcMain.handle('files:checkPC', async (_, destPath, phoneFiles) => {
   const existingOnPC = new Map()
   const searchQueue = [destPath]

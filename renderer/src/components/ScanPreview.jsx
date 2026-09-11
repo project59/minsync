@@ -1,11 +1,52 @@
-import { Check, FileCheck, FilePlus, FolderOpen, RotateCcw } from 'lucide-react'
+import { Check, CheckCircle, ChevronDown, ExternalLink, FilePlus, FileText, FolderOpen, HardDrive, RotateCcw } from 'lucide-react'
 
-export function ScanPreview({ result, summary, onSync, onCancel, onOpenFolder, onNewScan }) {
+function formatSize(bytes) {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
+function FileList({ files, title, emptyText, onOpenFile, existing = false }) {
+  return (
+    <details className="group border-t border-taupe-200 dark:border-taupe-800">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 py-3 text-sm font-medium text-taupe-800 dark:text-taupe-200">
+        <span>{title} <span className="text-taupe-500">({files.length})</span></span>
+        <ChevronDown className="h-4 w-4 text-taupe-500 transition-transform group-open:rotate-180" />
+      </summary>
+      <div className="mb-3 max-h-64 space-y-1 overflow-y-auto pr-1">
+        {files.length === 0 ? (
+          <p className="py-2 text-xs text-taupe-500 dark:text-taupe-400">{emptyText}</p>
+        ) : files.map((file, index) => {
+          const localPath = existing ? file.pcPaths?.[0] : file.localPath
+          return (
+            <div key={`${file.path}-${index}`} className="flex items-center gap-3 rounded-lg bg-taupe-100/70 px-3 py-2 dark:bg-taupe-800/60">
+              <FileText className="h-4 w-4 shrink-0 text-taupe-500" />
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm text-taupe-800 dark:text-taupe-200" title={file.path}>{file.path.split('/').pop()}</p>
+                <p className="truncate text-[11px] text-taupe-500 dark:text-taupe-400" title={file.path}>{file.path} · {formatSize(file.size)}</p>
+              </div>
+              <button
+                onClick={() => localPath && onOpenFile(localPath)}
+                disabled={!localPath}
+                className="btn-secondary flex shrink-0 items-center gap-1 px-3 py-1.5 text-xs"
+                title={localPath ? 'Open file' : 'Available after sync'}
+              >
+                <ExternalLink className="h-3.5 w-3.5" /> <span className="hidden sm:inline">{localPath ? 'Open' : 'After sync'}</span>
+              </button>
+            </div>
+          )
+        })}
+      </div>
+    </details>
+  )
+}
+
+export function ScanPreview({ result, summary, onSync, onCancel, onOpenFolder, onOpenFile, onNewScan }) {
   if (summary) {
     const hasFailures = summary.failed > 0
     return (
-      <div className="mt-8 w-full overflow-hidden">
-        <div className="flex items-start gap-4 200 pt-12">
+      <div className="mt-8 w-full overflow-hidden card">
+        <div className="flex items-start gap-4 200 ">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-action/15 text-action">
             <Check className="h-6 w-6" />
           </div>
@@ -19,11 +60,12 @@ export function ScanPreview({ result, summary, onSync, onCancel, onOpenFolder, o
             </p>
           </div>
         </div>
-        <div className="flex flex-wrap gap-2 mt-6">
+         <div className="flex flex-wrap gap-2 mt-6">
           <button onClick={onOpenFolder} className="btn-action flex items-center gap-2"><FolderOpen className="h-4 w-4" /> Open backup folder</button>
-          <button onClick={onNewScan} className="btn-secondary flex items-center gap-2"><RotateCcw className="h-4 w-4" /> Scan again</button>
-        </div>
-      </div>
+           <button onClick={onNewScan} className="btn-secondary flex items-center gap-2"><RotateCcw className="h-4 w-4" /> Scan again</button>
+         </div>
+         {summary.files && <div className="mt-6"><FileList files={summary.files} title="Files copied in this backup" emptyText="No files were copied." onOpenFile={onOpenFile} /></div>}
+       </div>
     )
   }
 
@@ -32,32 +74,42 @@ export function ScanPreview({ result, summary, onSync, onCancel, onOpenFolder, o
   const sizeMB = (totalSize / (1024 * 1024)).toFixed(1)
 
   return (
-    <div className="mt-8 w-full overflow-hidden">
+    <div className="mt-8 w-full overflow-hidden card">
       <div className="mb-4 flex items-end justify-between gap-3">
         <div><p className="text-xs font-medium uppercase tracking-[0.14em] text-primary">Ready to sync</p><h2 className="mt-1 text-xl font-semibold text-taupe-800 dark:text-taupe-100">Scan results</h2></div>
-        <span className="text-right text-xs text-taupe-500 dark:text-taupe-400">{sizeMB} MB to copy</span>
+
       </div>
       <div className="grid grid-cols-2 gap-2 mb-4 sm:max-w-md text-center">
-        <div className="rounded border border-primary/20 bg-primary/5 p-3">
-          <div className="flex items-center justify-center gap-2 mb-1">
-            <FilePlus className="w-5 h-5 text-primary" />
-            <span className="text-2xl font-bold text-primary">{newFiles.length}</span>
+        <div className="flex flex-col justify-between rounded-lg border border-primary/20 bg-primary/5 p-3 aspect-square text-left">
+          <div className="flex flex-col gap-2">
+            <span className="text-5xl font-semibold text-primary">{newFiles.length}</span>
+            {newFiles.length > 0 && (
+              <div className="flex items-center gap-1">
+                <HardDrive className="h-3 w-3 text-primary" />
+                <div className="text-xs text-primary font-medium">{sizeMB} MB</div>
+              </div>
+            )}
           </div>
-          <span className="text-xs text-taupe-500 dark:text-taupe-400">New files to copy</span>
-          {newFiles.length > 0 && (
-            <div className="text-xs text-primary mt-1 font-medium">{sizeMB} MB</div>
-          )}
+          <div className="flex flex-col gap-2">
+            <FilePlus className="h-8 w-8 text-primary" />
+            <span className="text-lg font-medium text-taupe-800 dark:text-taupe-400">New files to copy</span>
+          </div>
         </div>
-        <div className="rounded border border-action/20 bg-action/5 p-3">
-          <div className="flex items-center justify-center gap-2 mb-1">
-            <FileCheck className="w-5 h-5 text-action" />
-            <span className="text-2xl font-bold text-action">{existingFiles.length}</span>
+        <div className="flex flex-col justify-between rounded-lg border border-action/20 bg-action/5 p-3 aspect-square text-left">
+          <span className="text-5xl font-semibold text-action">{existingFiles.length}</span>
+          <div className="flex flex-col gap-2">
+            <CheckCircle className="text-action" size={30} />
+            <span className="text-lg font-medium text-taupe-800 dark:text-taupe-400">Files already existing</span>
           </div>
-          <span className="text-xs text-taupe-500 dark:text-taupe-400">Already backed up</span>
         </div>
       </div>
 
       <p className="mb-4 text-xs text-taupe-500 dark:text-taupe-400">{existingFiles.length ? `${existingFiles.length} existing files will be skipped.` : 'No matching files were found in the destination.'}</p>
+
+      <div className="mb-5">
+        <FileList files={newFiles} title="Files to copy" emptyText="Everything selected is already backed up." onOpenFile={onOpenFile} />
+        <FileList files={existingFiles} title="Already backed up" emptyText="No matching files were found in the destination." onOpenFile={onOpenFile} existing />
+      </div>
 
       <div className="flex flex-wrap justify-start gap-2">
         <button onClick={onCancel} className="btn-secondary">

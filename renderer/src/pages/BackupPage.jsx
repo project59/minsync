@@ -28,6 +28,7 @@ export function BackupPage({
   onCancelScan,
   syncSummary,
   onOpenFolder,
+  onOpenFile,
   onNewScan
 }) {
   const [step, setStep] = useState(1)
@@ -87,71 +88,71 @@ export function BackupPage({
         </header>
 
         {step === 1 && (
-        <section className="space-y-3">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <button onClick={() => setConnectionType('usb')} className={`card text-left hover:border-primary ${connectionType === 'usb' ? 'border-primary ring-2 ring-primary/20' : ''}`}>
-              <Usb className="w-5 h-5 text-primary mb-3" />
-              <span className="block font-semibold text-taupe-800 dark:text-taupe-100">Use USB</span>
-              <span className="block text-sm text-taupe-500 dark:text-taupe-400 mt-1">Connect your phone with a cable.</span>
-            </button>
-            <button onClick={() => setConnectionType('wifi')} className={`card text-left hover:border-primary ${connectionType === 'wifi' ? 'border-primary ring-2 ring-primary/20' : ''}`}>
-              <Wifi className="w-5 h-5 text-primary mb-3" />
-              <span className="block font-semibold text-taupe-800 dark:text-taupe-100">Use Wi-Fi</span>
-              <span className="block text-sm text-taupe-500 dark:text-taupe-400 mt-1">Pair using Android wireless debugging.</span>
-            </button>
-          </div>
-          <StepNavigation nextDisabled={!connectionType} onNext={() => setStep(2)} />
-        </section>
-        )}
-
-      {step === 2 && (
-        <section className="space-y-3">
-          {connectedWithSelectedMethod ? (
-            <SetupGuide status={deviceStatus} connectionType={connectionType} />
-          ) : connectionType === 'usb' ? (
-            <SetupGuide status={deviceStatus} connectionType={connectionType} />
-          ) : (
-            <div className="card space-y-3">
-              <p className="text-sm text-taupe-500 dark:text-taupe-400">Finish pairing in the Wi-Fi setup window.</p>
-              <button onClick={onWifiConnect} className="btn-secondary w-full">Open Wi-Fi setup</button>
+          <section className="space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button onClick={() => setConnectionType('usb')} className={`card text-left hover:border-primary ${connectionType === 'usb' ? 'border-primary ring-2 ring-primary/20' : ''}`}>
+                <Usb className="w-5 h-5 text-primary mb-3" />
+                <span className="block font-semibold text-taupe-800 dark:text-taupe-100">Use USB</span>
+                <span className="block text-sm text-taupe-500 dark:text-taupe-400 mt-1">Connect your phone with a cable.</span>
+              </button>
+              <button onClick={() => setConnectionType('wifi')} className={`card text-left hover:border-primary ${connectionType === 'wifi' ? 'border-primary ring-2 ring-primary/20' : ''}`}>
+                <Wifi className="w-5 h-5 text-primary mb-3" />
+                <span className="block font-semibold text-taupe-800 dark:text-taupe-100">Use Wi-Fi</span>
+                <span className="block text-sm text-taupe-500 dark:text-taupe-400 mt-1">Pair using Android wireless debugging.</span>
+              </button>
             </div>
-          )}
-          <StepNavigation nextDisabled={!connectedWithSelectedMethod} onNext={() => setStep(3)} />
-        </section>
+            <StepNavigation nextDisabled={!connectionType} onNext={() => setStep(2)} />
+          </section>
         )}
 
-      {step === 3 && (
-        <section className="space-y-3">
-          <DestinationPicker destPath={destPath} onChange={setDestPath} onBrowse={onBrowse} />
-          <StepNavigation nextDisabled={!destPath} onNext={() => setStep(4)} />
-        </section>
+        {step === 2 && (
+          <section className="space-y-3">
+            {connectedWithSelectedMethod ? (
+              <SetupGuide status={deviceStatus} connectionType={connectionType} />
+            ) : connectionType === 'usb' ? (
+              <SetupGuide status={deviceStatus} connectionType={connectionType} />
+            ) : (
+              <div className="card space-y-3">
+                <p className="text-sm text-taupe-500 dark:text-taupe-400">Finish pairing in the Wi-Fi setup window.</p>
+                <button onClick={onWifiConnect} className="btn-secondary w-full">Open Wi-Fi setup</button>
+              </div>
+            )}
+            <StepNavigation nextDisabled={!connectedWithSelectedMethod} onNext={() => setStep(3)} />
+          </section>
         )}
 
-      {step === 4 && (
-        <section className="space-y-3">
-          <FolderSyncSection
-            folderTree={folderTree}
-            includeAndroid={includeAndroid}
-            onIncludeAndroidChange={onIncludeAndroidChange}
-            onReloadTree={onReloadTree}
-            selectedFolders={selectedFolders}
-            setSelectedFolders={setSelectedFolders}
-            isLoadingTree={isLoadingTree}
-          />
-          {syncSummary ? (
-            <ScanPreview summary={syncSummary} onOpenFolder={onOpenFolder} onNewScan={onNewScan} />
-          ) : scanResult ? (
-            <ScanPreview result={scanResult} onSync={onSync} onCancel={onCancelScan} />
-          ) : null}
-          {!syncSummary && (
-            <StepNavigation
-              nextDisabled={isScanning || selectedFolders.length === 0 || !destPath}
-              onNext={onScan}
-              nextLabel={isScanning ? 'Scanning...' : 'Scan for changes'}
+        {step === 3 && (
+          <section className="space-y-3">
+            <DestinationPicker destPath={destPath} onChange={setDestPath} onBrowse={onBrowse} />
+            <StepNavigation nextDisabled={!destPath} onNext={() => setStep(4)} />
+          </section>
+        )}
+
+        {step === 4 && (
+          <section className="space-y-3">
+            <FolderSyncSection
+              folderTree={folderTree}
+              includeAndroid={includeAndroid}
+              onIncludeAndroidChange={onIncludeAndroidChange}
+              onReloadTree={onReloadTree}
+              selectedFolders={selectedFolders}
+              setSelectedFolders={setSelectedFolders}
+              isLoadingTree={isLoadingTree}
             />
-          )}
-          {isSyncing && <SyncProgress result={scanResult} />}
-        </section>
+            {!syncSummary && (
+              <StepNavigation
+                nextDisabled={isScanning || selectedFolders.length === 0 || !destPath}
+                onNext={onScan}
+                nextLabel={isScanning ? 'Scanning...' : 'Scan for changes'}
+              />
+            )}
+            {syncSummary ? (
+              <ScanPreview summary={syncSummary} onOpenFolder={onOpenFolder} onOpenFile={onOpenFile} onNewScan={onNewScan} />
+            ) : scanResult ? (
+              <ScanPreview result={scanResult} onSync={onSync} onCancel={onCancelScan} onOpenFile={onOpenFile} />
+            ) : null}
+            {isSyncing && <SyncProgress result={scanResult} />}
+          </section>
         )}
       </section>
     </main>

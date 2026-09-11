@@ -202,6 +202,7 @@ export default function App() {
       const destPath = inboxFolder + '/' + rel.replace(/^\//, '')
       try {
         await window.api.pullFile(device.id, file.path, destPath)
+        file.localPath = destPath
       } catch (err) {
         console.error(`Failed: ${file.path}`, err)
         failed++
@@ -220,7 +221,8 @@ export default function App() {
       copied: completed - failed,
       failed,
       skipped: scanResult.existingFiles.length,
-      inbox: inboxFolder
+      inbox: inboxFolder,
+      files: newFiles.filter(file => file.localPath)
     })
     setIsSyncing(false)
     loadHistory()
@@ -265,6 +267,7 @@ export default function App() {
             onCancelScan={() => { setScanResult(null); setSyncSummary(null) }}
             syncSummary={syncSummary}
             onOpenFolder={() => window.api.openFolder(syncSummary?.inbox)}
+            onOpenFile={(filePath) => window.api.openFile(filePath)}
             onNewScan={() => setSyncSummary(null)}
           />
         )}
