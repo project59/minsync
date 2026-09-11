@@ -37,6 +37,8 @@ function download(url, dest) {
 
 async function main() {
   const force = process.argv.includes('--force')
+  fs.mkdirSync(BIN_DIR, { recursive: true })
+
   if (fs.existsSync(ADB_PATH) && !force) {
     console.log(`ADB already at ${ADB_PATH}`)
     return
