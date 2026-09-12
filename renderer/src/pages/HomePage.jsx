@@ -4,7 +4,7 @@ export function HomePage({ onNavigate, deviceStatus }) {
   return (
     <main>
       <section className="flex flex-col items-center text-center py-12">
-        <h1 className="text-4xl tracking-tighter font-semibold max-w-3xl text-taupe-900 sm:text-6xl dark:text-taupe-50">A simpler way to manage phone files.</h1>
+        <h1 className="text-4xl tracking-tighter font-medium max-w-3xl text-taupe-900 sm:text-6xl dark:text-taupe-50">A simpler way to manage your Android files</h1>
         <p className="page-lede font-mono">Back up your Android phone and share files over your own network. No accounts, internet, or complex setup needed.</p>
         <div className="flex flex-wrap items-center gap-3 mt-7">
           <button className="btn-primary flex items-center gap-2" onClick={() => onNavigate('/backup')}>
@@ -19,12 +19,8 @@ export function HomePage({ onNavigate, deviceStatus }) {
         <div className="section-marker">01. Features</div>
         <div className="feature-stack">
           <article className="feature-panel feature-panel-sage">
-            <div className="feature-placeholder feature-placeholder-sage h-96" role="img" aria-label="Quick backup image placeholder">
-              <div className="placeholder-window">
-                <div className="placeholder-toolbar"><span /><span /><span /></div>
-                <div className="placeholder-lines"><i /><i /><i /><i /></div>
-                <div className="placeholder-check">✓</div>
-              </div>
+            <div className="feature-placeholder feature-placeholder-sage h-96 relative" role="img" aria-label="Quick backup image placeholder">
+              <img src="/image-1.png" alt="Quick backup" className="rounded-md w-96" />
             </div>
             <div className="flex flex-col">
               <p className="eyebrow">1.1 / quick backup</p>
@@ -35,8 +31,8 @@ export function HomePage({ onNavigate, deviceStatus }) {
 
           <article className="feature-panel feature-panel-peach">
             <div className="feature-placeholder feature-placeholder-peach h-96" role="img" aria-label="File control image placeholder">
-              <div className="placeholder-tree"><span /><span /><span /><span /></div>
-              <div className="placeholder-folder">↗</div>
+                            <img src="/image-2.png" alt="Quick backup" className="rounded-md w-96" />
+
             </div>
             <div className="flex flex-col">
               <p className="eyebrow">1.2 / file control</p>

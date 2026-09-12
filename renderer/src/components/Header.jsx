@@ -23,7 +23,7 @@ export function Header({ darkMode, setDarkMode, device, deviceStatus, tab,
       </nav>
       <div className="header-actions">
         <button onClick={onHistoryOpen} className="btn-secondary header-icon-button" aria-label="Open sync history" title="Sync history">
-          <span className="hidden sm:inline">History</span>
+          <span className="hidden sm:inline text-xs">History</span>
           <span className="text-xs font-mono">{historyCount}</span>
           <History className="w-4 h-4" />
         </button>

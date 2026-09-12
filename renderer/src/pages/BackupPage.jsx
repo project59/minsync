@@ -84,7 +84,7 @@ export function BackupPage({
       <section className="space-y-5">
         <header className="space-y-1">
           <p className="text-sm text-taupe-500 dark:text-taupe-400">Step {step}/4</p>
-          <h2 className="text-2xl font-semibold text-taupe-800 dark:text-taupe-100">{stepTitles[step - 1]}</h2>
+          <h2 className="text-2xl tracking-tighter mt-6 font-semibold text-taupe-800 dark:text-taupe-100">{stepTitles[step - 1]}</h2>
           <p className="text-sm text-taupe-500 dark:text-taupe-400">{stepDescriptions[step - 1]}</p>
         </header>
 
