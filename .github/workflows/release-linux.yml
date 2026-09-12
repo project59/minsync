@@ -29,21 +29,13 @@ jobs:
       - name: Install dependencies and bundled ADB
         run: npm install
 
-      - name: Build Linux packages
-        run: npm run dist:linux
-
-      - name: Upload Linux packages
-        uses: actions/upload-artifact@v4
-        with:
-          name: packages-linux
-          path: |
-            release/*.AppImage
-            release/*.deb
-            release/*.yml
-            release/*.blockmap
-          if-no-files-found: error
+      - name: Build and publish Linux packages
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run dist:linux -- --publish always
 
   macos:
+    needs: linux
     runs-on: macos-latest
 
     steps:
@@ -63,21 +55,13 @@ jobs:
       - name: Install dependencies and bundled ADB
         run: npm install
 
-      - name: Build macOS packages
-        run: npm run dist:mac
-
-      - name: Upload macOS packages
-        uses: actions/upload-artifact@v4
-        with:
-          name: packages-macos
-          path: |
-            release/*.dmg
-            release/*.zip
-            release/*.yml
-            release/*.blockmap
-          if-no-files-found: error
+      - name: Build and publish macOS packages
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run dist:mac -- --publish always
 
   windows:
+    needs: macos
     runs-on: windows-latest
 
     steps:
@@ -96,37 +80,7 @@ jobs:
       - name: Install dependencies and bundled ADB
         run: npm install
 
-      - name: Build Windows packages
-        run: npm run dist:win
-
-      - name: Upload Windows packages
-        uses: actions/upload-artifact@v4
-        with:
-          name: packages-windows
-          path: |
-            release/*.exe
-            release/*.yml
-            release/*.blockmap
-          if-no-files-found: error
-
-  release:
-    needs: [linux, macos, windows]
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Download built packages
-        uses: actions/download-artifact@v4
-        with:
-          pattern: packages-*
-          merge-multiple: true
-          path: release
-
-      - name: Create GitHub Release
+      - name: Build and publish Windows packages
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            gh release upload "$GITHUB_REF_NAME" release/* --repo "$GITHUB_REPOSITORY" --clobber
-          else
-            gh release create "$GITHUB_REF_NAME" release/* --repo "$GITHUB_REPOSITORY" --title "$GITHUB_REF_NAME" --generate-notes
-          fi
+        run: npm run dist:win -- --publish always
