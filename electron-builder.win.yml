@@ -1,0 +1,6 @@
+win:
+  target:
+    - nsis
+    - portable
+  icon: build/icon.ico
+  executableName: minsync
