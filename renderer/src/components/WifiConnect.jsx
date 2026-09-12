@@ -158,7 +158,7 @@ export function WifiConnect({ onClose, onConnected, db }) {
                   <div className="text-sm">
                     <p className="font-medium text-taupe-700 dark:text-taupe-200 mb-1">ADB not available</p>
                     <p className="text-taupe-600 dark:text-taupe-400 mb-2">
-                      PhoneSync needs ADB to connect to your phone. Try updating it below.
+                      MinSync needs ADB to connect to your phone. Try updating it below.
                     </p>
                     <button onClick={handleRedownload} disabled={redownloading} className="btn-action py-1.5 px-3 text-xs flex items-center gap-2">
                       {redownloading && <RefreshCw className="w-3 h-3 animate-spin" />}

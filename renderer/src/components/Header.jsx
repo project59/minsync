@@ -4,16 +4,16 @@ export function Header({ darkMode, setDarkMode, device, deviceStatus, tab,
   route, onNavigate, historyCount, onHistoryOpen }) {
   return (
     <header className="site-header">
-      <button className="brand-mark" onClick={() => onNavigate('/')} aria-label="Go to PhoneSync home">
+      <button className="brand-mark" onClick={() => onNavigate('/')} aria-label="Go to MinSync home">
         <span className="brand-symbol"><Smartphone className="w-4 h-4" /></span>
-        <span>PhoneSync</span>
+        <span>MinSync</span>
       </button>
       <nav className="site-nav" aria-label="Primary navigation">
         {[
           ['/', 'Home'],
           ['/backup', 'Backup'],
           ['/quick-share', 'Quick Share'],
-          ['/pricing', 'Pricing'],
+          ['/support', 'Support'],
           ['/faq', 'FAQ']
         ].map(([path, label]) => (
           <button key={path} onClick={() => onNavigate(path)} className={route === path ? ' nav-link active' : ' nav-link'}>

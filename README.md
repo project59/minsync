@@ -1,6 +1,6 @@
-# PhoneSync
+# MinSync
 
-PhoneSync is an Electron desktop app for incremental Android backups over ADB. It also includes Quick Share for transferring files between a computer and a phone on the same network.
+MinSync is an Electron desktop app for incremental Android backups over ADB. It also includes Quick Share for transferring files between a computer and a phone on the same network.
 
 ## Development
 

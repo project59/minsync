@@ -1,13 +1,18 @@
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, Coffee, Heart } from 'lucide-react'
 
-export function PricingPage() {
+export function SupportPage() {
   return (
     <main className="info-page">
-      <h1>Simple tools. No surprise plans.</h1>
-      <p className="page-lede">PhoneSync is currently free to use. These placeholder plans show where future capabilities may land.</p>
+      <h1>Support MinSync</h1>
+      <p className="page-lede">MinSync is free to use. If it helps you move files more easily, you can support its continued development.</p>
       <div className="pricing-grid">
-        <article className="price-card"><span className="eyebrow">Free / now</span><h2>$0</h2><p>Everything needed for local backup and Quick Share.</p><button className="btn-primary w-full">Current plan</button></article>
-        <article className="price-card featured-price"><span className="eyebrow">Plus / soon</span><h2>$6 <small>/ month</small></h2><p>Automations, scheduled backups, and richer device history.</p><button className="btn-secondary w-full">Coming soon</button></article>
+        <article className="price-card"><span className="eyebrow">Free / now</span><h2>$0</h2><p>Everything needed for local backup and Quick Share.</p><button className="btn-secondary w-fit">Current plan</button></article>
+        <article className="price-card"><span className="eyebrow">Support / optional</span><h2>Donate</h2><p>Help keep MinSync free and support future improvements.</p>
+          <div className="flex gap-2">
+            <a className="btn-primary flex items-center gap-2" href="https://buymeacoffee.com/project59" target="_blank" rel="noreferrer">Buy me a coffee <Coffee className="w-4 h-4" /></a>
+            <a className="btn-primary flex items-center gap-2" href="https://github.com/sponsors/project59" target="_blank" rel="noreferrer">GitHub <Heart className="w-4 h-4" /></a>
+          </div>
+        </article>
       </div>
     </main>
   )
@@ -15,7 +20,7 @@ export function PricingPage() {
 
 const FAQS = [
   ['Where do my files go?', 'Backups are written to the destination folder you choose. Quick Share uses folders on this computer that you explicitly select.'],
-  ['Does PhoneSync use the cloud?', 'No. The current app connects directly to your phone over USB or your local WiFi network.'],
+  ['Does MinSync use the cloud?', 'No. The current app connects directly to your phone over USB or your local WiFi network.'],
   ['Can I use wireless backup?', 'Yes. Open Backup, choose Connect WiFi, and follow the Android wireless debugging steps.'],
   ['What is coming next?', 'Scheduled backups, richer history, and more device controls are planned.']
 ]

@@ -1,5 +1,5 @@
 export class SyncDB {
-  constructor(dbName = 'PhoneSync') {
+  constructor(dbName = 'MinSync') {
     this.dbName = dbName
     this.db = null
   }

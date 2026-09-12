@@ -2,14 +2,10 @@ export function Footer({ onNavigate }) {
   return (
     <footer className="site-footer">
       <div className="footer-topline">
-        <span>PhoneSync / local utility</span>
-        <span>Built for the files you keep</span>
+        <span>MinSync / local utility</span>
       </div>
       <div className="footer-main">
-        <div>
-          <p className="footer-wordmark">Phone<span>Sync</span></p>
-          <p className="footer-note">A quiet bridge between your phone and your computer.</p>
-        </div>
+          <p className="footer-wordmark">MinSync</p>
         <nav className="footer-nav" aria-label="Footer navigation">
           <span className="eyebrow">Explore</span>
           <button onClick={() => onNavigate('/')} className="btn-secondary footer-link">Home</button>
@@ -18,12 +14,12 @@ export function Footer({ onNavigate }) {
         </nav>
         <nav className="footer-nav" aria-label="Information navigation">
           <span className="eyebrow">Information</span>
-          <button onClick={() => onNavigate('/pricing')} className="btn-secondary footer-link">Pricing</button>
+          <button onClick={() => onNavigate('/support')} className="btn-secondary footer-link">Support</button>
           <button onClick={() => onNavigate('/faq')} className="btn-secondary footer-link">FAQ</button>
         </nav>
       </div>
       <div className="footer-bottom">
-        <span>© 2026 PhoneSync</span>
+        <span>© 2026 MinSync</span>
       </div>
     </footer>
   )

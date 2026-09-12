@@ -14,7 +14,7 @@ const SETUP_CONTENT = {
   adb_not_found: {
     icon: AlertTriangle,
     title: 'ADB not detected',
-    description: 'PhoneSync bundles ADB, but it needs to be downloaded first.'
+    description: 'MinSync bundles ADB, but it needs to be downloaded first.'
   },
   no_device: {
     icon: Smartphone,
@@ -56,7 +56,7 @@ export function SetupGuide({ status, connectionType = 'usb' }) {
             </li>
             <li>Extract the zip somewhere on your PC</li>
             <li>Add the folder to your system PATH</li>
-            <li>Restart PhoneSync</li>
+            <li>Restart MinSync</li>
           </ol>
         </div>
       )}

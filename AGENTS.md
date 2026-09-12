@@ -1,4 +1,4 @@
-# PhoneSync — Agent guide
+# MinSync — Agent guide
 
 ## Project structure
 

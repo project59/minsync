@@ -6,11 +6,11 @@ import { SyncDB } from '../db'
 import { HomePage } from './pages/HomePage'
 import { BackupPage } from './pages/BackupPage'
 import { QuickSharePage } from './pages/QuickSharePage'
-import { PricingPage, FAQPage } from './pages/InfoPages'
+import { SupportPage, FAQPage } from './pages/InfoPages'
 import { Footer } from './components/Footer'
 
 const db = new SyncDB()
-const ROUTES = ['/', '/backup', '/quick-share', '/pricing', '/faq']
+const ROUTES = ['/', '/backup', '/quick-share', '/support', '/faq']
 
 function getRoute() {
   const path = window.location.hash.replace(/^#/, '') || '/'
@@ -273,7 +273,7 @@ export default function App() {
           />
         )}
         {route === '/quick-share' && <QuickSharePage />}
-        {route === '/pricing' && <PricingPage />}
+        {route === '/support' && <SupportPage />}
         {route === '/faq' && <FAQPage />}
       </div>
 

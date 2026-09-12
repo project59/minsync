@@ -48,7 +48,7 @@ export function BackupPage({
   const stepDescriptions = [
     'Choose how you want to connect your phone for this backup.',
     connectionType === 'usb' ? 'Connect your phone with a USB cable and complete the setup.' : 'Pair your phone using Android wireless debugging.',
-    'Choose where PhoneSync should save the files on this computer. Files located anywhere in this folder will be detected by PhoneSync.',
+    'Choose where MinSync should save the files on this computer. Files located anywhere in this folder will be detected by MinSync.',
     'Select the folders and files you want to include in this backup.'
   ]
   const connectedWithSelectedMethod = deviceStatus === 'connected' && device?.transport === connectionType

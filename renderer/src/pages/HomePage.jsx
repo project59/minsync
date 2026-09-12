@@ -29,7 +29,7 @@ export function HomePage({ onNavigate, deviceStatus }) {
             <div className="flex flex-col">
               <p className="eyebrow">1.1 / quick backup</p>
               <h3 className="mt-3 max-w-md text-3xl font-medium leading-tight tracking-[-0.04em] text-taupe-900 dark:text-taupe-50">Only copy what is actually new.</h3>
-              <p className="mt-4 max-w-md text-sm leading-6 text-taupe-700 dark:text-taupe-200">PhoneSync checks the files already in your destination and skips them automatically, so every backup is faster and easier to trust.</p>
+              <p className="mt-4 max-w-md text-sm leading-6 text-taupe-700 dark:text-taupe-200">MinSync checks the files already in your destination and skips them automatically, so every backup is faster and easier to trust.</p>
             </div>
           </article>
 

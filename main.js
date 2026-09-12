@@ -77,7 +77,7 @@ function renderMobilePage(req) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>PhoneSync Quick Share</title>
+<title>MinSync Quick Share</title>
 <style>
   :root { color-scheme: light dark; }
   * { box-sizing: border-box; }
@@ -109,7 +109,7 @@ function renderMobilePage(req) {
 </style>
 </head>
 <body>
-  <h1>PhoneSync Quick Share</h1>
+  <h1>MinSync Quick Share</h1>
   <div class="sub">Connected to <strong>${pcName}</strong> · ${ip}:${port}</div>
 
   <div class="tabs">
@@ -471,14 +471,14 @@ ipcMain.handle('adb:tree', async (_, deviceId, includeAndroid = false) => {
     for (let start = 0; start < dirs.length; start += 40) {
       const batch = dirs.slice(start, start + 40)
       const command = batch.map(dir => (
-        `echo __PHONESYNC_DIR__"${dir}"; ls -l "${dir}" 2>/dev/null`
+        `echo __MINSYNC_DIR__"${dir}"; ls -l "${dir}" 2>/dev/null`
       )).join('; ')
       const { stdout } = await safeAdbShell(deviceId, command)
       let currentDir = null
       for (const rawLine of stdout.split('\n')) {
         const line = rawLine.trim()
-        if (line.startsWith('__PHONESYNC_DIR__')) {
-          currentDir = line.slice('__PHONESYNC_DIR__'.length)
+        if (line.startsWith('__MINSYNC_DIR__')) {
+          currentDir = line.slice('__MINSYNC_DIR__'.length)
           continue
         }
         if (!currentDir || !line.startsWith('-')) continue
@@ -577,7 +577,7 @@ ipcMain.handle('adb:previewFile', async (_, deviceId, filePath) => {
     return false
   }
 
-  const previewDir = path.join(app.getPath('cache'), 'phonesync-preview')
+  const previewDir = path.join(app.getPath('cache'), 'minsync-preview')
   fs.mkdirSync(previewDir, { recursive: true })
   const fileName = path.basename(filePath).replace(/[^a-zA-Z0-9._-]/g, '_') || 'phone-file'
   const previewPath = path.join(previewDir, `${Date.now()}-${fileName}`)

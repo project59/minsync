@@ -151,7 +151,7 @@ html.dark *::-webkit-scrollbar-thumb:hover {
   }
 
   .app-shell {
-    @apply mx-auto min-h-screen w-full max-w-6xl px-3 pb-10 sm:px-6;
+    @apply mx-auto min-h-screen w-full max-w-6xl px-3 pb-6 sm:px-6;
   }
 
   .app-content {
@@ -379,7 +379,7 @@ html.dark *::-webkit-scrollbar-thumb:hover {
   }
 
   .price-card {
-    @apply rounded-3xl border border-taupe-200 bg-white p-6 dark:border-taupe-700 dark:bg-taupe-800;
+    @apply flex flex-col rounded-3xl border border-taupe-200 bg-white p-6 dark:border-taupe-700 dark:bg-taupe-800;
   }
 
   .price-card h2 {
@@ -392,10 +392,6 @@ html.dark *::-webkit-scrollbar-thumb:hover {
 
   .price-card p {
     @apply my-6 min-h-12 text-sm leading-6 text-taupe-600 dark:text-taupe-300;
-  }
-
-  .featured-price {
-    @apply border-primary/50 bg-primary/[0.04];
   }
 
   .faq-list {
@@ -427,7 +423,7 @@ html.dark *::-webkit-scrollbar-thumb:hover {
   }
 
   .site-footer {
-    @apply mx-auto mt-24 w-full max-w-6xl border-t border-taupe-300 pb-5 pt-5 dark:border-taupe-700;
+    @apply mx-auto mt-24 w-full max-w-6xl bg-[#edfcf1] dark:bg-zinc-900 p-5 pt-5 rounded-2xl;
   }
 
   .footer-topline,
@@ -457,10 +453,6 @@ html.dark *::-webkit-scrollbar-thumb:hover {
 
   .footer-link {
     @apply h-auto rounded-none bg-transparent p-0 text-sm font-normal text-taupe-700 shadow-none hover:bg-transparent hover:text-primary dark:bg-transparent dark:text-taupe-200 dark:hover:bg-transparent;
-  }
-
-  .footer-bottom {
-    @apply border-t border-taupe-200 pt-4 dark:border-taupe-700;
   }
 }
 
