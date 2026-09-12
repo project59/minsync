@@ -8,6 +8,9 @@ const PLATFORM = process.platform
 const BIN_DIR = path.join(__dirname, '..', 'bin')
 const ADB_NAME = PLATFORM === 'win32' ? 'adb.exe' : 'adb'
 const ADB_PATH = path.join(BIN_DIR, ADB_NAME)
+const BUNDLED_FILES = PLATFORM === 'win32'
+  ? ['adb.exe', 'AdbWinApi.dll', 'AdbWinUsbApi.dll']
+  : ['adb']
 
 const URLS = {
   linux: 'https://dl.google.com/android/repository/platform-tools-latest-linux.zip',
@@ -39,13 +42,16 @@ async function main() {
   const force = process.argv.includes('--force')
   fs.mkdirSync(BIN_DIR, { recursive: true })
 
-  if (fs.existsSync(ADB_PATH) && !force) {
+  const hasBundledFiles = BUNDLED_FILES.every(fileName => fs.existsSync(path.join(BIN_DIR, fileName)))
+  if (hasBundledFiles && !force) {
     console.log(`ADB already at ${ADB_PATH}`)
     return
   }
-  if (force && fs.existsSync(ADB_PATH)) {
+  if (force || !hasBundledFiles) {
     console.log(`Re-downloading ADB (forced)...`)
-    try { fs.unlinkSync(ADB_PATH) } catch {}
+    for (const fileName of BUNDLED_FILES) {
+      try { fs.unlinkSync(path.join(BIN_DIR, fileName)) } catch {}
+    }
   }
 
   const url = URLS[PLATFORM]
@@ -65,10 +71,15 @@ async function main() {
       execSync(`unzip -o "${zipPath}" -d "${BIN_DIR}" 2>/dev/null || (cd "${BIN_DIR}" && jar xf "${zipPath}")`, { stdio: 'pipe' })
     }
 
-    const extractedPath = path.join(BIN_DIR, 'platform-tools', ADB_NAME)
-    if (fs.existsSync(extractedPath)) {
-      fs.renameSync(extractedPath, ADB_PATH)
-      fs.chmodSync(ADB_PATH, 0o755)
+    const extractedDir = path.join(BIN_DIR, 'platform-tools')
+    for (const fileName of BUNDLED_FILES) {
+      const extractedPath = path.join(extractedDir, fileName)
+      const bundledPath = path.join(BIN_DIR, fileName)
+      if (!fs.existsSync(extractedPath)) {
+        throw new Error(`Missing ${fileName} in downloaded platform-tools archive`)
+      }
+      fs.renameSync(extractedPath, bundledPath)
+      if (fileName === ADB_NAME) fs.chmodSync(bundledPath, 0o755)
     }
     fs.rmSync(path.join(BIN_DIR, 'platform-tools'), { recursive: true, force: true })
     fs.unlinkSync(zipPath)

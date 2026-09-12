@@ -4,3 +4,6 @@ win:
     - portable
   icon: build/icon.ico
   executableName: minsync
+extraResources:
+  - from: bin
+    to: bin
