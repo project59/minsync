@@ -37,6 +37,28 @@ The generated AppImage and Debian package are written to `release/`. These gener
 
 The Linux package includes the ADB executable downloaded during installation. Linux users may still need Android udev rules for USB device access. ADB from the system `PATH` is used as a fallback.
 
+## macOS Packaging
+
+Build unsigned macOS packages locally with:
+
+```bash
+npm install
+npm run dist:mac
+```
+
+The generated DMG and ZIP files are written to `release/`. Public macOS distribution normally requires Apple signing and notarization; the current GitHub workflow intentionally produces unsigned and unnotarized packages.
+
+## Windows Packaging
+
+Build unsigned Windows packages locally with:
+
+```bash
+npm install
+npm run dist:win
+```
+
+The generated NSIS installer and portable executable are written to `release/`. The Windows build uses `build/icon.ico`; public distribution may show SmartScreen warnings until the installer is code-signed.
+
 ## GitHub Releases
 
 Releases are built by GitHub Actions when a version tag is pushed. Ordinary commits and pushes to `main` do not create releases.
@@ -48,6 +70,6 @@ git tag v1.0.0
 git push origin v1.0.0
 ```
 
-Tags must use the `vMAJOR.MINOR.PATCH` format, such as `v1.0.0` or `v1.0.1`. The workflow builds the exact commit referenced by the tag and uploads the Linux AppImage and `.deb` package to the corresponding GitHub Release.
+Tags must use the `vMAJOR.MINOR.PATCH` format, such as `v1.0.0` or `v1.0.1`. The workflow builds the exact commit referenced by the tag and uploads the Linux AppImage, `.deb`, macOS DMG and ZIP, and Windows NSIS installer and portable executable to the corresponding GitHub Release.
 
 Use a new tag for every release. For example, use `v1.0.1` for a release containing fixes after `v1.0.0`; do not reuse or move an existing release tag.

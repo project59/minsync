@@ -1,4 +1,4 @@
-name: Release Linux
+name: Release
 
 on:
   push:
@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  linux:
     runs-on: ubuntu-latest
 
     steps:
@@ -30,3 +30,48 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run dist:linux -- --publish always
+
+  macos:
+    needs: linux
+    runs-on: macos-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # This currently produces unsigned and unnotarized packages.
+      - name: Install dependencies and bundled ADB
+        run: npm install
+
+      - name: Build and publish macOS packages
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run dist:mac -- --publish always
+
+  windows:
+    needs: macos
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies and bundled ADB
+        run: npm install
+
+      - name: Build and publish Windows packages
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run dist:win -- --publish always

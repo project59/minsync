@@ -1,7 +1,7 @@
 {
   "name": "minsync",
   "version": "1.0.1",
-  "description": "One-way incremental Android backup via ADB",
+  "description": "Simple Android backup and sharing tool via ADB",
   "main": "main.js",
   "desktopName": "minsync",
   "author": {
@@ -17,7 +17,9 @@
     "start": "electron .",
     "dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron . --dev\"",
     "build": "vite build",
+    "dist:mac": "npm run build && electron-builder --mac dmg zip",
     "dist:linux": "npm run build && electron-builder --linux AppImage deb",
+    "dist:win": "npm run build && electron-builder --win nsis portable",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -50,8 +52,8 @@
     ],
     "extraResources": [
       {
-        "from": "bin/adb",
-        "to": "bin/adb"
+        "from": "bin",
+        "to": "bin"
       }
     ],
     "linux": {
@@ -62,6 +64,21 @@
       "category": "Utility",
       "executableName": "minsync",
       "syncDesktopName": true
+    },
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "category": "public.app-category.utilities"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "build/icon.ico",
+      "executableName": "minsync"
     },
     "publish": {
       "provider": "github",
