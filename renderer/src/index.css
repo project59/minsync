@@ -106,8 +106,7 @@ html.dark *::-webkit-scrollbar-thumb:hover {
   }
 
   .card {
-    @apply bg-zinc-50 dark:bg-zinc-900 rounded-2xl p-4
-            border border-taupe-200 dark:border-taupe-800;
+    @apply bg-olive-100/70 dark:bg-zinc-900 rounded-2xl p-4;
   }
 
   .site-header {
@@ -164,7 +163,7 @@ html.dark *::-webkit-scrollbar-thumb:hover {
 
   .page-intro h1,
   .info-page h1 {
-    @apply mt-3 max-w-2xl text-4xl font-semibold tracking-[-0.04em] text-taupe-900 sm:text-6xl dark:text-taupe-50;
+    @apply mt-3 max-w-2xl text-4xl font-medium tracking-[-0.04em] text-taupe-900 sm:text-6xl dark:text-taupe-50;
   }
 
   .eyebrow {
@@ -423,7 +422,7 @@ html.dark *::-webkit-scrollbar-thumb:hover {
   }
 
   .site-footer {
-    @apply mx-auto mt-24 w-full max-w-6xl bg-[#edfcf1] dark:bg-zinc-900 p-5 pt-5 rounded-2xl;
+    @apply mx-auto mt-24 w-full max-w-6xl bg-olive-100 dark:bg-zinc-900 p-5 pt-5 rounded-2xl;
   }
 
   .footer-topline,

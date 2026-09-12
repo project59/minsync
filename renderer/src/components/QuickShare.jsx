@@ -1,13 +1,12 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
-  Wifi, WifiOff, QrCode, FolderOpen, Upload, Download, RefreshCw,
-  Copy, Check, X, FileUp, FileDown
+  Wifi, WifiOff, QrCode, FolderOpen, Download, RefreshCw,
+  Copy, Check, FileUp, FileDown
 } from 'lucide-react'
 import qrcode from '../qrcode.js'
 
 export function QuickShare() {
   const [running, setRunning] = useState(false)
-  const [status, setStatus] = useState(null)
   const [receiveDir, setReceiveDir] = useState('')
   const [shareDir, setShareDir] = useState('')
   const [port, setPort] = useState(0)
@@ -18,18 +17,14 @@ export function QuickShare() {
   const [pcFiles, setPcFiles] = useState([])
   const [error, setError] = useState('')
   const [copied, setCopied] = useState(false)
-  const [dragActive, setDragActive] = useState(false)
   const [busy, setBusy] = useState(false)
-  const logRef = useRef(null)
-  const [log, setLog] = useState([])
 
-  function addLog(msg) {
-    setLog(prev => [...prev.slice(-49), { time: new Date().toLocaleTimeString(), msg }])
-  }
+  // function addLog(msg) {
+  //   setLog(prev => [...prev.slice(-49), { time: new Date().toLocaleTimeString(), msg }])
+  // }
 
   const refreshStatus = useCallback(async () => {
     const s = await window.api.share.status()
-    setStatus(s)
     setRunning(s.running)
     if (s.running) {
       setPort(s.port)
@@ -44,10 +39,10 @@ export function QuickShare() {
     const off = window.api.share.onEvent((evt) => {
       if (evt.type === 'file-received') {
         setReceived(prev => [{ ...evt.payload, ts: Date.now() }, ...prev])
-        addLog(`Received: ${evt.payload.name} (${humanSize(evt.payload.size)})`)
+        // addLog(`Received: ${evt.payload.name} (${humanSize(evt.payload.size)})`)
       } else if (evt.type === 'file-downloaded') {
         setDownloads(prev => [{ ...evt.payload, ts: Date.now() }, ...prev])
-        addLog(`Phone downloaded: ${evt.payload.name} (${humanSize(evt.payload.size)})`)
+        // addLog(`Phone downloaded: ${evt.payload.name} (${humanSize(evt.payload.size)})`)
       }
     })
     return () => { if (off) off() }
@@ -59,7 +54,7 @@ export function QuickShare() {
         const qr = qrcode(0, 'M')
         qr.addData(qrUrl)
         qr.make()
-        setQrSvg(qr.createSvgTag({ cellSize: 4, margin: 2 }))
+        setQrSvg(qr.createSvgTag({ cellSize: 4, margin: 2, scalable: true }))
       } catch (err) {
         console.error('QR build failed:', err)
         setQrSvg('')
@@ -73,7 +68,7 @@ export function QuickShare() {
     const f = await window.api.share.pickFolder()
     if (f) {
       setReceiveDir(f)
-      addLog(`Receive folder: ${f}`)
+      // addLog(`Receive folder: ${f}`)
     }
   }
 
@@ -81,7 +76,7 @@ export function QuickShare() {
     const f = await window.api.share.pickFolder()
     if (f) {
       setShareDir(f)
-      addLog(`Share folder: ${f}`)
+      // addLog(`Share folder: ${f}`)
       if (running) {
         const r = await window.api.share.start({ port, receiveDir, shareDir: f })
         if (r.ok) { setPort(r.port); setQrUrl(r.url); refreshPcFiles() }
@@ -109,15 +104,14 @@ export function QuickShare() {
     setRunning(true)
     setPort(r.port)
     setQrUrl(r.url)
-    setStatus(await window.api.share.status())
-    addLog(`Server started on ${r.url}`)
+    // addLog(`Server started on ${r.url}`)
   }
 
   async function handleStop() {
     await window.api.share.stop()
     setRunning(false)
     setQrUrl('')
-    addLog('Server stopped')
+    // addLog('Server stopped')
     refreshStatus()
   }
 
@@ -127,22 +121,7 @@ export function QuickShare() {
       await navigator.clipboard.writeText(qrUrl)
       setCopied(true)
       setTimeout(() => setCopied(false), 1500)
-    } catch {}
-  }
-
-  async function handleDrop(e) {
-    e.preventDefault()
-    setDragActive(false)
-    const files = Array.from(e.dataTransfer.files || [])
-    if (!files.length) return
-    setBusy(true)
-    for (const f of files) {
-      const r = await window.api.share.addFile(f.path)
-      if (r.ok) addLog(`Added to share: ${f.name}`)
-      else addLog(`Failed: ${f.name} - ${r.error}`)
-    }
-    setBusy(false)
-    refreshPcFiles()
+    } catch { }
   }
 
   function humanSize(n) {
@@ -153,7 +132,7 @@ export function QuickShare() {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="grid grid-cols-2 gap-3">
       <div className="card">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
@@ -174,8 +153,8 @@ export function QuickShare() {
           a web page for sending/receiving files — no app install needed, works on any phone with a browser on the same WiFi.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-          <div>
+        <div className="flex flex-col">
+          <div className="flex flex-col gap-3 mb-4">
             <label className="text-xs text-taupe-500 mb-1 block">Receive folder (phone → PC)</label>
             <div className="flex gap-2">
               <input
@@ -187,94 +166,71 @@ export function QuickShare() {
               />
               <button onClick={handlePickReceive} className="btn-secondary"><FolderOpen className="w-4 h-4" /></button>
             </div>
-          </div>
-          <div>
-            <label className="text-xs text-taupe-500 mb-1 block">Share folder (PC → phone)</label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={shareDir}
-                onChange={(e) => setShareDir(e.target.value)}
-                className="input-main"
-                placeholder="Files the phone can browse/download"
-              />
-              <button onClick={handlePickShare} className="btn-secondary"><FolderOpen className="w-4 h-4" /></button>
+            <div>
+              <label className="text-xs text-taupe-500 mb-1 block">Share folder (PC → phone)</label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={shareDir}
+                  onChange={(e) => setShareDir(e.target.value)}
+                  className="input-main"
+                  placeholder="Files the phone can browse/download"
+                />
+                <button onClick={handlePickShare} className="btn-secondary"><FolderOpen className="w-4 h-4" /></button>
+              </div>
             </div>
           </div>
-        </div>
 
-        {error && <div className="text-sm text-danger mb-3">{error}</div>}
+          {error && <div className="text-sm text-danger mb-3">{error}</div>}
 
-        <div className="flex gap-3">
-          {!running ? (
-            <button onClick={handleStart} disabled={busy || !receiveDir || !shareDir} className="btn-action flex-1 flex items-center gap-2 justify-center">
-              {busy && <RefreshCw className="w-4 h-4 animate-spin" />}
-              <Wifi className="w-4 h-4" /> Start sharing
-            </button>
-          ) : (
-            <button onClick={handleStop} className="btn-danger flex-1 flex items-center justify-center gap-2">
-              <WifiOff className="w-4 h-4" /> Stop server
-            </button>
-          )}
+          <div className="flex gap-3">
+            {!running ? (
+              <button onClick={handleStart} disabled={busy || !receiveDir || !shareDir} className="btn-action flex-1 flex items-center gap-2 justify-center">
+                {busy && <RefreshCw className="w-4 h-4 animate-spin" />}
+                <Wifi className="w-4 h-4" /> Start sharing
+              </button>
+            ) : (
+              <button onClick={handleStop} className="btn-danger flex-1 flex items-center justify-center gap-2">
+                <WifiOff className="w-4 h-4" /> Stop server
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
       {running && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <div className="card">
-            <div className="flex items-center gap-2 mb-3">
-              <QrCode className="w-5 h-5 text-taupe-500" />
-              <h3 className="font-semibold text-taupe-700 dark:text-taupe-200">Scan with phone</h3>
-            </div>
-            <div className="flex flex-col items-center">
-              {qrSvg ? (
-                <div
-                  className="bg-white dark:bg-taupe-700 p-3 rounded-xl border border-taupe-200 dark:border-taupe-600"
-                  dangerouslySetInnerHTML={{ __html: qrSvg }}
-                  style={{ width: 232, height: 232 }}
-                />
-              ) : (
-                <div className="w-[232px] h-[232px] flex items-center justify-center text-taupe-400 text-sm">
-                  Generating…
-                </div>
-              )}
-              <div className="flex items-center gap-2 mt-3 w-full">
-                <code className="flex-1 text-xs font-mono px-3 py-2 bg-taupe-100 dark:bg-taupe-800 text-taupe-600 dark:text-taupe-400 truncate rounded-lg">{qrUrl}</code>
-                <button onClick={copyUrl} className="btn-secondary p-2" aria-label="Copy URL">
-                  {copied ? <Check className="w-4 h-4 text-action" /> : <Copy className="w-4 h-4" />}
-                </button>
-              </div>
-              <p className="text-xs text-taupe-400 mt-3 text-center">
-                Make sure your phone is on the same WiFi as this PC.
-              </p>
-            </div>
+        <div className="card">
+          <div className="flex items-center gap-2 mb-3">
+            <QrCode className="w-5 h-5 text-taupe-500" />
+            <h3 className="font-semibold text-taupe-700 dark:text-taupe-200">Scan with phone</h3>
           </div>
-
-          <div className="card">
-            <div className="flex items-center gap-2 mb-3">
-              <FileUp className="w-5 h-5 text-taupe-500" />
-              <h3 className="font-semibold text-taupe-700 dark:text-taupe-200">Quick add to share folder</h3>
+          <div className="flex flex-col items-center">
+            {qrSvg ? (
+              <div
+                className="bg-white dark:bg-taupe-700 p-3 rounded-xl border border-taupe-200 dark:border-taupe-600 [&>svg]:block [&>svg]:w-full [&>svg]:h-full"
+                dangerouslySetInnerHTML={{ __html: qrSvg }}
+                style={{ width: 232, height: 232 }}
+              />
+            ) : (
+              <div className="w-[232px] h-[232px] flex items-center justify-center text-taupe-400 text-sm">
+                Generating…
+              </div>
+            )}
+            <div className="flex items-center gap-2 mt-3 w-full">
+              <code className="flex-1 text-xs font-mono px-3 py-2 bg-taupe-100 dark:bg-taupe-800 text-taupe-600 dark:text-taupe-400 truncate rounded-lg">{qrUrl}</code>
+              <button onClick={copyUrl} className="btn-secondary p-2" aria-label="Copy URL">
+                {copied ? <Check className="w-4 h-4 text-action" /> : <Copy className="w-4 h-4" />}
+              </button>
             </div>
-            <div
-              onDragEnter={(e) => { e.preventDefault(); setDragActive(true) }}
-              onDragOver={(e) => { e.preventDefault(); setDragActive(true) }}
-              onDragLeave={(e) => { e.preventDefault(); setDragActive(false) }}
-              onDrop={handleDrop}
-              className={`border-2 border-dashed rounded-xl p-8 text-center text-sm transition-colors ${
-                dragActive
-                  ? 'border-action bg-action/5 text-action'
-                  : 'border-taupe-300 dark:border-taupe-600 text-taupe-500'
-              }`}
-            >
-              {busy ? <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2" /> : <Upload className="w-5 h-5 mx-auto mb-2" />}
-              Drag &amp; drop files here to copy into the share folder
-            </div>
+            <p className="text-xs text-taupe-400 mt-3 text-center">
+              Make sure your phone is on the same WiFi as this PC.
+            </p>
           </div>
         </div>
       )}
 
       {running && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <>
           <div className="card">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
@@ -315,7 +271,7 @@ export function QuickShare() {
               </ul>
             )}
           </div>
-        </div>
+        </>
       )}
 
       {running && downloads.length > 0 && (
@@ -332,20 +288,6 @@ export function QuickShare() {
               </li>
             ))}
           </ul>
-        </div>
-      )}
-
-      {log.length > 0 && (
-        <div className="card">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="font-semibold text-sm text-taupe-700 dark:text-taupe-200">Activity log</h3>
-            <button onClick={() => setLog([])} className="btn-secondary p-1.5"><X className="w-3.5 h-3.5" /></button>
-          </div>
-          <div ref={logRef} className="text-xs font-mono space-y-1 max-h-40 overflow-auto text-taupe-600 dark:text-taupe-400">
-            {log.map((l, i) => (
-              <div key={i}><span className="text-taupe-400">[{l.time}]</span> {l.msg}</div>
-            ))}
-          </div>
         </div>
       )}
     </div>

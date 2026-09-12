@@ -1,10 +1,10 @@
-import { ArrowUpRight, Check, Smartphone } from 'lucide-react'
+import { ArrowUpRight } from 'lucide-react'
 
 export function HomePage({ onNavigate, deviceStatus }) {
   return (
     <main>
       <section className="flex flex-col items-center text-center py-12">
-        <h1 className="text-4xl tracking-tighter font-medium max-w-3xl text-taupe-900 sm:text-6xl dark:text-taupe-50">A simpler way to manage your Android files</h1>
+        <h1 className="text-4xl tracking-tighter font-semibold max-w-3xl text-taupe-900 sm:text-6xl dark:text-taupe-50">A simpler way to manage your Android files</h1>
         <p className="page-lede font-mono">Back up your Android phone and share files over your own network. No accounts, internet, or complex setup needed.</p>
         <div className="flex flex-wrap items-center gap-3 mt-7">
           <button className="btn-primary flex items-center gap-2" onClick={() => onNavigate('/backup')}>
@@ -31,8 +31,7 @@ export function HomePage({ onNavigate, deviceStatus }) {
 
           <article className="feature-panel feature-panel-peach">
             <div className="feature-placeholder feature-placeholder-peach h-96" role="img" aria-label="File control image placeholder">
-                            <img src="/image-2.png" alt="Quick backup" className="rounded-md w-96" />
-
+              <img src="/image-2.png" alt="Quick backup" className="rounded-md w-96" />
             </div>
             <div className="flex flex-col">
               <p className="eyebrow">1.2 / file control</p>
@@ -45,8 +44,7 @@ export function HomePage({ onNavigate, deviceStatus }) {
 
           <article className="feature-panel feature-panel-lavender">
             <div className="feature-placeholder feature-placeholder-lavender h-96" role="img" aria-label="Quick Share image placeholder">
-              <div className="placeholder-qr"><span /><span /><span /><span /><span /><span /></div>
-              <div className="placeholder-phone" />
+              <img src="/image-3.png" alt="Quick backup" className="rounded-md w-96" />
             </div>
             <div className="flex flex-col">
               <p className="eyebrow">1.3 / quick share</p>
