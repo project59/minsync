@@ -22,17 +22,28 @@ jobs:
           node-version: 22
           cache: npm
 
+      - name: Set package version from tag
+        run: npm version "${{ github.ref_name }}" --no-git-tag-version
+
       # npm install is intentional until electron-builder is reflected in the lockfile.
       - name: Install dependencies and bundled ADB
         run: npm install
 
-      - name: Build and publish Linux packages
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm run dist:linux -- --publish always
+      - name: Build Linux packages
+        run: npm run dist:linux
+
+      - name: Upload Linux packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages-linux
+          path: |
+            release/*.AppImage
+            release/*.deb
+            release/*.yml
+            release/*.blockmap
+          if-no-files-found: error
 
   macos:
-    needs: linux
     runs-on: macos-latest
 
     steps:
@@ -45,17 +56,28 @@ jobs:
           node-version: 22
           cache: npm
 
+      - name: Set package version from tag
+        run: npm version "${{ github.ref_name }}" --no-git-tag-version
+
       # This currently produces unsigned and unnotarized packages.
       - name: Install dependencies and bundled ADB
         run: npm install
 
-      - name: Build and publish macOS packages
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm run dist:mac -- --publish always
+      - name: Build macOS packages
+        run: npm run dist:mac
+
+      - name: Upload macOS packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages-macos
+          path: |
+            release/*.dmg
+            release/*.zip
+            release/*.yml
+            release/*.blockmap
+          if-no-files-found: error
 
   windows:
-    needs: macos
     runs-on: windows-latest
 
     steps:
@@ -68,10 +90,43 @@ jobs:
           node-version: 22
           cache: npm
 
+      - name: Set package version from tag
+        run: npm version "${{ github.ref_name }}" --no-git-tag-version
+
       - name: Install dependencies and bundled ADB
         run: npm install
 
-      - name: Build and publish Windows packages
+      - name: Build Windows packages
+        run: npm run dist:win
+
+      - name: Upload Windows packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages-windows
+          path: |
+            release/*.exe
+            release/*.yml
+            release/*.blockmap
+          if-no-files-found: error
+
+  release:
+    needs: [linux, macos, windows]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download built packages
+        uses: actions/download-artifact@v4
+        with:
+          pattern: packages-*
+          merge-multiple: true
+          path: release
+
+      - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm run dist:win -- --publish always
+        run: |
+          if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" release/* --repo "$GITHUB_REPOSITORY" --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" release/* --repo "$GITHUB_REPOSITORY" --title "$GITHUB_REF_NAME" --generate-notes
+          fi
