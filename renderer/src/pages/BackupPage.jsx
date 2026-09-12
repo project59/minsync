@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ArrowLeft, ArrowRight, RefreshCw, Usb, Wifi } from 'lucide-react'
+import { ArrowLeft, ArrowRight, ShieldCheck, Usb, Wifi } from 'lucide-react'
 import { ScanPreview } from '../components/ScanPreview'
 import { SyncProgress } from '../components/SyncProgress'
 import { SetupGuide } from '../components/SetupGuide'
@@ -44,16 +44,17 @@ export function BackupPage({
     }
   }, [connectionType, deviceStatus, device?.transport, step, syncSummary])
 
-  const stepTitles = ['Choose connection', 'Set up your connection', 'Choose a Sync folder', 'Choose files to back up']
+  const stepTitles = ['Choose connection', 'Set up your connection', 'Choose a Sync folder', 'Choose files to back up', 'Finish']
   const stepDescriptions = [
     'Choose how you want to connect your phone for this backup.',
     connectionType === 'usb' ? 'Connect your phone with a USB cable and complete the setup.' : 'Pair your phone using Android wireless debugging.',
     'Choose where MinSync should save the files on this computer. Files located anywhere in this folder will be detected by MinSync.',
-    'Select the folders and files you want to include in this backup.'
+    'Select the folders and files you want to include in this backup.',
+    'Your backup is complete. Take a moment to secure your phone.'
   ]
   const connectedWithSelectedMethod = deviceStatus === 'connected' && device?.transport === connectionType
 
-  function StepNavigation({ nextDisabled, onNext, nextLabel = 'Next' }) {
+  function StepNavigation({ nextDisabled, onNext, nextLabel = 'Next', showNext = true }) {
     return (
       <div className="flex items-center justify-start gap-2 pt-12">
         <button
@@ -63,13 +64,15 @@ export function BackupPage({
         >
           <ArrowLeft className="w-4 h-4" /> Back
         </button>
-        <button
-          onClick={onNext}
-          disabled={nextDisabled}
-          className="btn-primary flex items-center gap-1"
-        >
-          {nextLabel} <ArrowRight className="w-4 h-4" />
-        </button>
+        {showNext && (
+          <button
+            onClick={onNext}
+            disabled={nextDisabled}
+            className="btn-primary flex items-center gap-1"
+          >
+            {nextLabel} <ArrowRight className="w-4 h-4" />
+          </button>
+        )}
       </div>
     )
   }
@@ -83,7 +86,7 @@ export function BackupPage({
 
       <section className="space-y-5">
         <header className="space-y-1">
-          <p className="text-sm text-taupe-500 dark:text-taupe-400">Step {step}/4</p>
+          <p className="text-sm text-taupe-500 dark:text-taupe-400">Step {step}/5</p>
           <h2 className="text-2xl tracking-tighter mt-6 font-semibold text-taupe-800 dark:text-taupe-100">{stepTitles[step - 1]}</h2>
           <p className="text-sm text-taupe-500 dark:text-taupe-400">{stepDescriptions[step - 1]}</p>
         </header>
@@ -139,20 +142,35 @@ export function BackupPage({
               selectedFolders={selectedFolders}
               setSelectedFolders={setSelectedFolders}
               isLoadingTree={isLoadingTree}
+              onScan={onScan}
+              isScanning={isScanning}
+              scanDisabled={isScanning || selectedFolders.length === 0 || !destPath}
             />
-            {!syncSummary && (
-              <StepNavigation
-                nextDisabled={isScanning || selectedFolders.length === 0 || !destPath}
-                onNext={onScan}
-                nextLabel={isScanning ? 'Scanning...' : 'Scan for changes'}
-              />
-            )}
             {syncSummary ? (
               <ScanPreview summary={syncSummary} onOpenFolder={onOpenFolder} onOpenFile={onOpenFile} onOpenPhoneFile={onOpenPhoneFile} onNewScan={onNewScan} />
             ) : scanResult ? (
               <ScanPreview result={scanResult} onSync={onSync} onCancel={onCancelScan} onOpenFile={onOpenFile} onOpenPhoneFile={onOpenPhoneFile} />
             ) : null}
             {isSyncing && <SyncProgress result={scanResult} />}
+            <StepNavigation
+              nextDisabled={selectedFolders.length === 0 || !destPath}
+              onNext={() => setStep(5)}
+            />
+          </section>
+        )}
+
+        {step === 5 && (
+          <section className="space-y-3">
+            <div className="card flex items-start gap-4">
+              <ShieldCheck className="mt-0.5 h-6 w-6 shrink-0 text-amber-600 dark:text-amber-400" />
+              <div className="space-y-1">
+                <h3 className="font-semibold text-taupe-800 dark:text-taupe-100">Disable debugging when you are finished</h3>
+                <p className="text-sm leading-6 text-taupe-600 dark:text-taupe-300">
+                  For your safety, disable USB debugging and wireless debugging on your phone when you no longer need them.
+                </p>
+              </div>
+            </div>
+            <StepNavigation showNext={false} />
           </section>
         )}
       </section>

@@ -106,7 +106,7 @@ html.dark *::-webkit-scrollbar-thumb:hover {
   }
 
   .card {
-    @apply bg-olive-100/70 dark:bg-zinc-900 rounded-2xl p-4;
+    @apply bg-olive-100/70 dark:bg-taupe-800/50 rounded-2xl p-4;
   }
 
   .site-header {
@@ -141,20 +141,12 @@ html.dark *::-webkit-scrollbar-thumb:hover {
     @apply flex h-8 items-center justify-center gap-2 px-2.5;
   }
 
-  .device-pill {
-    @apply flex items-center gap-2 rounded-full bg-taupe-100 px-3 py-1.5 text-xs text-taupe-600 dark:bg-taupe-800 dark:text-taupe-300;
-  }
-
-  .status-dot {
-    @apply h-1.5 w-1.5 rounded-full bg-action;
-  }
-
   .app-shell {
-    @apply mx-auto min-h-screen w-full max-w-6xl px-3 pb-6 sm:px-6;
+    @apply mx-auto flex min-h-screen w-full max-w-6xl flex-col px-3 pb-6 sm:px-6;
   }
 
   .app-content {
-    @apply mx-auto w-full ;
+    @apply mx-auto w-full flex-1;
   }
 
   .page-intro {
@@ -178,93 +170,12 @@ html.dark *::-webkit-scrollbar-thumb:hover {
     @apply text-xs text-taupe-500 dark:text-taupe-400;
   }
 
-  .hero-grid {
-    @apply grid gap-10 pb-20 pt-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-20 lg:pt-16;
-  }
-
-  .hero-copy h1 {
-    @apply mt-4 max-w-3xl text-5xl font-semibold leading-[0.98] tracking-[-0.06em] text-taupe-900 sm:text-7xl dark:text-taupe-50;
-  }
-
-  .hero-card {
-    @apply rounded-[2rem] border border-taupe-300 bg-white p-6 shadow-[0_20px_60px_rgba(32,37,34,0.08)] dark:border-taupe-700 dark:bg-taupe-800;
-  }
-
-  .hero-card-top {
-    @apply flex justify-between font-mono text-[10px] uppercase tracking-[0.12em] text-taupe-400;
-  }
-
-  .hero-orbit {
-    @apply mt-12 flex h-44 items-center justify-center rounded-[1.5rem] border border-dashed border-taupe-300 text-primary dark:border-taupe-600;
-  }
-
-  .hero-card-list {
-    @apply mt-6 grid gap-2 border-t border-taupe-200 pt-4 text-xs text-taupe-600 dark:border-taupe-700 dark:text-taupe-300;
-  }
-
-  .hero-card-list span,
-  .mini-feature {
-    @apply flex items-start gap-2;
-  }
-
-  .hero-card-list svg {
-    @apply mt-0.5 text-action;
-  }
-
-  .editorial-section {
-    @apply border-t border-taupe-200 py-12 dark:border-taupe-700;
-  }
-
-  .section-marker {
-    @apply flex justify-between font-mono text-[10px] uppercase tracking-[0.18em] text-taupe-500;
-  }
-
-  .editorial-grid {
-    @apply mt-10 grid gap-8 md:grid-cols-2 md:gap-20;
-  }
-
-  .editorial-grid h2 {
-    @apply text-3xl font-medium leading-tight tracking-[-0.04em] text-taupe-900 dark:text-taupe-50;
-  }
-
-  .mini-feature {
-    @apply rounded-2xl border border-taupe-200 p-4 dark:border-taupe-700;
-  }
-
-  .mini-feature svg {
-    @apply shrink-0 text-primary;
-  }
-
-  .mini-feature strong {
-    @apply font-medium text-taupe-900 dark:text-taupe-100;
-  }
-
-  .feature-note {
-    @apply flex items-center gap-3 rounded-2xl border border-taupe-200 bg-white/60 px-4 py-3 text-sm text-taupe-600 dark:border-taupe-700 dark:bg-taupe-800/50 dark:text-taupe-300;
-  }
-
-  .feature-note span {
-    @apply font-mono text-[10px] text-taupe-400;
-  }
-
   .features-section {
     @apply py-12;
   }
 
-  .features-intro {
-    @apply mt-8 max-w-xl;
-  }
-
-  .features-intro h2 {
-    @apply text-3xl font-medium tracking-[-0.04em] text-taupe-900 dark:text-taupe-50;
-  }
-
-  .features-intro p {
-    @apply mt-3 text-sm leading-6 text-taupe-600 dark:text-taupe-300;
-  }
-
   .feature-stack {
-    @apply mt-10 grid gap-24;
+    @apply mt-10 grid gap-12;
   }
 
   .feature-panel {
@@ -283,90 +194,8 @@ html.dark *::-webkit-scrollbar-thumb:hover {
     @apply bg-[#ff7099];
   }
 
-  .feature-panel-copy h3 {
-    @apply mt-3 max-w-md text-3xl font-medium leading-tight tracking-[-0.04em] text-taupe-900 dark:text-taupe-50;
-  }
-
-  .feature-panel-copy > p:last-child {
-    @apply mt-4 max-w-md text-sm leading-6 text-taupe-700 dark:text-taupe-200;
-  }
-
   .feature-placeholder {
     @apply relative flex w-full items-center justify-center overflow-hidden rounded-xl;
-  }
-
-  .placeholder-window {
-    @apply relative w-48 -rotate-3 rounded-xl border border-taupe-700/20 bg-white/70 p-3 shadow-xl shadow-taupe-700/10 dark:bg-taupe-100/80;
-  }
-
-  .placeholder-toolbar {
-    @apply flex gap-1 border-b border-taupe-700/10 pb-2;
-  }
-
-  .placeholder-toolbar span {
-    @apply h-1.5 w-1.5 rounded-full bg-taupe-500/50;
-  }
-
-  .placeholder-lines {
-    @apply grid gap-2 py-4;
-  }
-
-  .placeholder-lines i {
-    @apply block h-2 rounded-full bg-taupe-500/25;
-  }
-
-  .placeholder-lines i:nth-child(2) {
-    @apply w-3/4;
-  }
-
-  .placeholder-lines i:nth-child(3) {
-    @apply w-5/6;
-  }
-
-  .placeholder-check {
-    @apply absolute -right-3 -top-3 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-xl text-white shadow-lg;
-  }
-
-  .placeholder-tree {
-    @apply grid w-40 gap-3 rounded-2xl border border-taupe-700/15 bg-white/60 p-4 shadow-lg shadow-taupe-700/10 dark:bg-taupe-100/70;
-  }
-
-  .placeholder-tree span {
-    @apply h-2 rounded-full bg-taupe-600/25;
-  }
-
-  .placeholder-tree span:nth-child(2) {
-    @apply ml-4 w-3/4;
-  }
-
-  .placeholder-tree span:nth-child(3) {
-    @apply ml-8 w-1/2;
-  }
-
-  .placeholder-tree span:nth-child(4) {
-    @apply ml-4 w-2/3;
-  }
-
-  .placeholder-folder {
-    @apply absolute bottom-16 right-1/4 flex h-12 w-12 rotate-6 items-center justify-center rounded-xl bg-action text-xl text-white shadow-lg;
-  }
-
-  .placeholder-qr {
-    @apply grid h-32 w-32 rotate-3 grid-cols-3 gap-2 rounded-xl bg-white p-4 shadow-xl shadow-taupe-700/10;
-  }
-
-  .placeholder-qr span {
-    @apply rounded-sm bg-taupe-800/75;
-  }
-
-  .placeholder-qr span:nth-child(2),
-  .placeholder-qr span:nth-child(4),
-  .placeholder-qr span:nth-child(6) {
-    @apply bg-taupe-300;
-  }
-
-  .placeholder-phone {
-    @apply absolute h-28 w-14 -rotate-12 rounded-xl border-4 border-taupe-800/60 bg-white/60 shadow-xl dark:border-taupe-200/60;
   }
 
   .info-page {
@@ -383,10 +212,6 @@ html.dark *::-webkit-scrollbar-thumb:hover {
 
   .price-card h2 {
     @apply mt-8 text-5xl font-semibold tracking-[-0.06em] text-taupe-900 dark:text-taupe-50;
-  }
-
-  .price-card h2 small {
-    @apply text-base font-normal tracking-normal text-taupe-500;
   }
 
   .price-card p {
@@ -438,25 +263,11 @@ html.dark *::-webkit-scrollbar-thumb:hover {
     @apply text-6xl font-semibold leading-none tracking-[-0.08em] text-taupe-900 sm:text-8xl dark:text-taupe-50;
   }
 
-  .footer-wordmark span {
-    @apply text-primary;
-  }
-
-  .footer-note {
-    @apply mt-5 max-w-xs text-sm leading-6 text-taupe-600 dark:text-taupe-300;
-  }
-
   .footer-nav {
     @apply flex min-w-28 flex-col items-start gap-2;
   }
 
   .footer-link {
     @apply h-auto rounded-none bg-transparent p-0 text-sm font-normal text-taupe-700 shadow-none hover:bg-transparent hover:text-primary dark:bg-transparent dark:text-taupe-200 dark:hover:bg-transparent;
-  }
-}
-
-@layer utilities {
-  .no-rounded {
-    border-radius: 0;
   }
 }

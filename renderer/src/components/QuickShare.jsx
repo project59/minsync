@@ -133,68 +133,69 @@ export function QuickShare() {
 
   return (
     <div className="grid grid-cols-2 gap-3">
-      <div className="card">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            {running ? <Wifi className="w-5 h-5 text-action" /> : <WifiOff className="w-5 h-5 text-taupe-400" />}
-            <h2 className="font-semibold text-taupe-700 dark:text-taupe-200">Quick Share</h2>
-          </div>
-          {running ? (
-            <span className="flex items-center gap-2 text-xs text-action">
-              <span className="w-2 h-2 bg-action rounded-full animate-pulse" /> Live on port {port}
-            </span>
-          ) : (
-            <span className="text-xs text-taupe-400">Not running</span>
-          )}
-        </div>
-
-        <p className="text-sm text-taupe-500 dark:text-taupe-400 mb-4">
-          Start a wireless server on your PC. Scan the QR code with your phone's camera to open
-          a web page for sending/receiving files — no app install needed, works on any phone with a browser on the same WiFi.
-        </p>
-
-        <div className="flex flex-col">
-          <div className="flex flex-col gap-3 mb-4">
-            <label className="text-xs text-taupe-500 mb-1 block">Receive folder (phone → PC)</label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={receiveDir}
-                onChange={(e) => setReceiveDir(e.target.value)}
-                className="input-main"
-                placeholder="Where uploads from phone will land"
-              />
-              <button onClick={handlePickReceive} className="btn-secondary"><FolderOpen className="w-4 h-4" /></button>
+      <div className="card flex flex-col justify-between gap-3">
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              {running ? <Wifi className="w-5 h-5 text-action" /> : <WifiOff className="w-5 h-5 text-taupe-400" />}
+              <h2 className="font-semibold text-taupe-700 dark:text-taupe-200">Quick Share</h2>
             </div>
-            <div>
-              <label className="text-xs text-taupe-500 mb-1 block">Share folder (PC → phone)</label>
+            {running ? (
+              <span className="flex items-center gap-2 text-xs text-action">
+                <span className="w-2 h-2 bg-action rounded-full animate-pulse" /> Live on port {port}
+              </span>
+            ) : (
+              <span className="text-xs text-taupe-400">Not running</span>
+            )}
+          </div>
+
+          <p className="text-sm text-taupe-500 dark:text-taupe-400 mb-4">
+            Start a wireless server on your PC. Scan the QR code with your phone's camera to open
+            a web page for sending/receiving files — no app install needed, works on any phone with a browser on the same WiFi.
+          </p>
+
+          <div className="flex flex-col">
+            <div className="flex flex-col gap-3">
+              <label className="text-xs text-taupe-500 mb-1 block">Receive folder (phone → PC)</label>
               <div className="flex gap-2">
                 <input
                   type="text"
-                  value={shareDir}
-                  onChange={(e) => setShareDir(e.target.value)}
+                  value={receiveDir}
+                  onChange={(e) => setReceiveDir(e.target.value)}
                   className="input-main"
-                  placeholder="Files the phone can browse/download"
+                  placeholder="Where uploads from phone will land"
                 />
-                <button onClick={handlePickShare} className="btn-secondary"><FolderOpen className="w-4 h-4" /></button>
+                <button onClick={handlePickReceive} className="btn-secondary"><FolderOpen className="w-4 h-4" /></button>
+              </div>
+              <div>
+                <label className="text-xs text-taupe-500 mb-1 block">Share folder (PC → phone)</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={shareDir}
+                    onChange={(e) => setShareDir(e.target.value)}
+                    className="input-main"
+                    placeholder="Files the phone can browse/download"
+                  />
+                  <button onClick={handlePickShare} className="btn-secondary"><FolderOpen className="w-4 h-4" /></button>
+                </div>
               </div>
             </div>
-          </div>
 
-          {error && <div className="text-sm text-danger mb-3">{error}</div>}
-
-          <div className="flex gap-3">
-            {!running ? (
-              <button onClick={handleStart} disabled={busy || !receiveDir || !shareDir} className="btn-action flex-1 flex items-center gap-2 justify-center">
-                {busy && <RefreshCw className="w-4 h-4 animate-spin" />}
-                <Wifi className="w-4 h-4" /> Start sharing
-              </button>
-            ) : (
-              <button onClick={handleStop} className="btn-danger flex-1 flex items-center justify-center gap-2">
-                <WifiOff className="w-4 h-4" /> Stop server
-              </button>
-            )}
+            {error && <div className="text-sm text-danger mb-3">{error}</div>}
           </div>
+        </div>
+        <div className="flex gap-3">
+          {!running ? (
+            <button onClick={handleStart} disabled={busy || !receiveDir || !shareDir} className="btn-action flex-1 flex items-center gap-2 justify-center">
+              {busy && <RefreshCw className="w-4 h-4 animate-spin" />}
+              <Wifi className="w-4 h-4" /> Start sharing
+            </button>
+          ) : (
+            <button onClick={handleStop} className="btn-danger flex-1 flex items-center justify-center gap-2">
+              <WifiOff className="w-4 h-4" /> Stop server
+            </button>
+          )}
         </div>
       </div>
 
@@ -209,10 +210,10 @@ export function QuickShare() {
               <div
                 className="bg-white dark:bg-taupe-700 p-3 rounded-xl border border-taupe-200 dark:border-taupe-600 [&>svg]:block [&>svg]:w-full [&>svg]:h-full"
                 dangerouslySetInnerHTML={{ __html: qrSvg }}
-                style={{ width: 232, height: 232 }}
+                style={{ width: 200, height: 200 }}
               />
             ) : (
-              <div className="w-[232px] h-[232px] flex items-center justify-center text-taupe-400 text-sm">
+              <div className="w-[200px] h-[200px] flex items-center justify-center text-taupe-400 text-sm">
                 Generating…
               </div>
             )}

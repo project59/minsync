@@ -1,7 +1,7 @@
 import { RefreshCw } from 'lucide-react'
 import { FolderTree } from './FolderTree'
 
-export function FolderSyncSection({ folderTree, includeAndroid, onIncludeAndroidChange, onReloadTree, selectedFolders, setSelectedFolders, isLoadingTree }) {
+export function FolderSyncSection({ folderTree, includeAndroid, onIncludeAndroidChange, onReloadTree, selectedFolders, setSelectedFolders, isLoadingTree, onScan, isScanning, scanDisabled }) {
   return (
     <div className="">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-taupe-200 bg-taupe-50 p-3 dark:border-taupe-700 dark:bg-taupe-800/50">
@@ -34,9 +34,14 @@ export function FolderSyncSection({ folderTree, includeAndroid, onIncludeAndroid
           Loading folders...
         </div>
       )}
-      <button onClick={() => setSelectedFolders([])} className="btn-secondary mt-3">
-        Clear all
-      </button>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <button onClick={() => setSelectedFolders([])} className="btn-secondary">
+          Clear all
+        </button>
+        <button onClick={onScan} disabled={scanDisabled} className="btn-primary">
+          {isScanning ? 'Scanning...' : 'Scan for changes'}
+        </button>
+      </div>
     </div>
   )
 }

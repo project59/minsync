@@ -48,14 +48,14 @@ export function ScanPreview({ result, summary, onSync, onCancel, onOpenFolder, o
   if (summary) {
     const hasFailures = summary.failed > 0
     return (
-      <div className="mt-8 w-full overflow-hidden card">
+      <div className="mt-2 w-full overflow-hidden card">
         <div className="flex items-start gap-4 200 ">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-action/15 text-action">
             <Check className="h-6 w-6" />
           </div>
           <div>
             <p className="text-xs font-medium uppercase tracking-[0.14em] text-action">Backup complete</p>
-            <h2 className="mt-1 text-xl font-semibold text-taupe-800 dark:text-taupe-100">
+            <h2 className="mt-1 text-xl font-semibold text-taupe-800 dark:text-taupe-100 tracking-tight">
               {hasFailures ? 'Backup finished with some issues' : 'Your files are safely backed up'}
             </h2>
             <p className="mt-1 text-sm text-taupe-500 dark:text-taupe-400">
@@ -65,7 +65,6 @@ export function ScanPreview({ result, summary, onSync, onCancel, onOpenFolder, o
         </div>
          <div className="flex flex-wrap gap-2 mt-6">
           <button onClick={onOpenFolder} className="btn-action flex items-center gap-2"><FolderOpen className="h-4 w-4" /> Open backup folder</button>
-           <button onClick={onNewScan} className="btn-secondary flex items-center gap-2"><RotateCcw className="h-4 w-4" /> Scan again</button>
          </div>
          {summary.files && <div className="mt-6"><FileList files={summary.files} title="Files copied in this backup" emptyText="No files were copied." onOpenFile={onOpenFile} /></div>}
        </div>
@@ -83,7 +82,7 @@ export function ScanPreview({ result, summary, onSync, onCancel, onOpenFolder, o
 
       </div>
       <div className="grid grid-cols-2 gap-2 mb-4 sm:max-w-md text-center">
-        <div className="flex flex-col justify-between rounded-lg border border-primary/20 bg-primary/5 p-3 aspect-square text-left">
+        <div className="flex flex-col justify-between rounded-xl border border-primary/20 bg-primary/5 p-3 aspect-square text-left">
           <div className="flex flex-col gap-2">
             <span className="text-5xl font-semibold text-primary">{newFiles.length}</span>
             {newFiles.length > 0 && (
@@ -98,11 +97,11 @@ export function ScanPreview({ result, summary, onSync, onCancel, onOpenFolder, o
             <span className="text-lg font-medium text-taupe-800 dark:text-taupe-400">New files to copy</span>
           </div>
         </div>
-        <div className="flex flex-col justify-between rounded-lg border border-action/20 bg-action/5 p-3 aspect-square text-left">
+        <div className="flex flex-col justify-between rounded-xl border border-action/20 bg-action/5 p-3 aspect-square text-left">
           <span className="text-5xl font-semibold text-action">{existingFiles.length}</span>
           <div className="flex flex-col gap-2">
             <CheckCircle className="text-action" size={30} />
-            <span className="text-lg font-medium text-taupe-800 dark:text-taupe-400">Files already existing</span>
+            <span className="text-lg font-medium text-taupe-800 dark:text-taupe-400">Files already exist</span>
           </div>
         </div>
       </div>
