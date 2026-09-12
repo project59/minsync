@@ -63,7 +63,7 @@ export function SetupGuide({ status, connectionType = 'usb' }) {
 
       {status === 'no_device' && (
         <div className="card">
-          <p className="font-semibold text-taupe-700 dark:text-taupe-200 mb-3">One-time setup on your Android phone:</p>
+          <p className="font-semibold text-taupe-700 dark:text-taupe-200 mb-3">Setup your Android phone:</p>
           <ol className="list-decimal ml-5 space-y-2 text-sm text-taupe-600 dark:text-taupe-400">
             <li>Open <strong>Settings → About phone</strong></li>
             <li>Tap <strong>"Build number"</strong> 7 times (you'll see "You are now a developer")</li>

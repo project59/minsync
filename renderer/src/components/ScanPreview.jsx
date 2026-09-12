@@ -6,10 +6,10 @@ function formatSize(bytes) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-function FileList({ files, title, emptyText, onOpenFile, existing = false }) {
+function FileList({ files, title, emptyText, onOpenFile, onOpenPhoneFile, existing = false, phone = false }) {
   return (
     <details className="group border-t border-taupe-200 dark:border-taupe-800">
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 py-3 text-sm font-medium text-taupe-800 dark:text-taupe-200">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 pt-3 text-sm font-medium text-taupe-800 dark:text-taupe-200">
         <span>{title} <span className="text-taupe-500">({files.length})</span></span>
         <ChevronDown className="h-4 w-4 text-taupe-500 transition-transform group-open:rotate-180" />
       </summary>
@@ -18,20 +18,23 @@ function FileList({ files, title, emptyText, onOpenFile, existing = false }) {
           <p className="py-2 text-xs text-taupe-500 dark:text-taupe-400">{emptyText}</p>
         ) : files.map((file, index) => {
           const localPath = existing ? file.pcPaths?.[0] : file.localPath
+          const displayPath = existing ? localPath : file.path
+          const displayName = displayPath?.split(/[\\/]/).pop() || file.path
+          const canOpen = phone ? Boolean(onOpenPhoneFile) : Boolean(localPath)
           return (
             <div key={`${file.path}-${index}`} className="flex items-center gap-3 rounded-lg bg-taupe-100/70 px-3 py-2 dark:bg-taupe-800/60">
               <FileText className="h-4 w-4 shrink-0 text-taupe-500" />
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm text-taupe-800 dark:text-taupe-200" title={file.path}>{file.path.split('/').pop()}</p>
-                <p className="truncate text-[11px] text-taupe-500 dark:text-taupe-400" title={file.path}>{file.path} · {formatSize(file.size)}</p>
+                <p className="truncate text-sm text-taupe-800 dark:text-taupe-200" title={displayPath}>{displayName}</p>
+                <p className="truncate text-[11px] text-taupe-500 dark:text-taupe-400" title={displayPath}>{displayPath} · {formatSize(file.size)}</p>
               </div>
               <button
-                onClick={() => localPath && onOpenFile(localPath)}
-                disabled={!localPath}
+                onClick={() => phone ? onOpenPhoneFile(file.path) : onOpenFile(localPath)}
+                disabled={!canOpen}
                 className="btn-secondary flex shrink-0 items-center gap-1 px-3 py-1.5 text-xs"
-                title={localPath ? 'Open file' : 'Available after sync'}
+                title={phone ? 'Preview on PC' : 'Open file'}
               >
-                <ExternalLink className="h-3.5 w-3.5" /> <span className="hidden sm:inline">{localPath ? 'Open' : 'After sync'}</span>
+                <ExternalLink className="h-3.5 w-3.5" /> <span className="hidden sm:inline">{phone ? 'Preview on PC' : 'Open'}</span>
               </button>
             </div>
           )
@@ -41,7 +44,7 @@ function FileList({ files, title, emptyText, onOpenFile, existing = false }) {
   )
 }
 
-export function ScanPreview({ result, summary, onSync, onCancel, onOpenFolder, onOpenFile, onNewScan }) {
+export function ScanPreview({ result, summary, onSync, onCancel, onOpenFolder, onOpenFile, onOpenPhoneFile, onNewScan }) {
   if (summary) {
     const hasFailures = summary.failed > 0
     return (
@@ -106,8 +109,8 @@ export function ScanPreview({ result, summary, onSync, onCancel, onOpenFolder, o
 
       <p className="mb-4 text-xs text-taupe-500 dark:text-taupe-400">{existingFiles.length ? `${existingFiles.length} existing files will be skipped.` : 'No matching files were found in the destination.'}</p>
 
-      <div className="mb-5">
-        <FileList files={newFiles} title="Files to copy" emptyText="Everything selected is already backed up." onOpenFile={onOpenFile} />
+      <div className="mb-2">
+        <FileList files={newFiles} title="Files to copy" emptyText="Everything selected is already backed up." onOpenPhoneFile={onOpenPhoneFile} phone />
         <FileList files={existingFiles} title="Already backed up" emptyText="No matching files were found in the destination." onOpenFile={onOpenFile} existing />
       </div>
 

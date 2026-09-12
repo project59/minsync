@@ -8,6 +8,7 @@ contextBridge.exposeInMainWorld('api', {
   pickFolder: () => ipcRenderer.invoke('dialog:pickFolder'),
   openFolder: (folderPath) => ipcRenderer.invoke('files:openFolder', folderPath),
   openFile: (filePath) => ipcRenderer.invoke('files:openFile', filePath),
+  previewPhoneFile: (deviceId, filePath) => ipcRenderer.invoke('adb:previewFile', deviceId, filePath),
   checkPCForFiles: (destPath, phoneFiles) => ipcRenderer.invoke('files:checkPC', destPath, phoneFiles),
 
   adbVersion: () => ipcRenderer.invoke('adb:version'),

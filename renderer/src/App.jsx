@@ -268,6 +268,7 @@ export default function App() {
             syncSummary={syncSummary}
             onOpenFolder={() => window.api.openFolder(syncSummary?.inbox)}
             onOpenFile={(filePath) => window.api.openFile(filePath)}
+            onOpenPhoneFile={(filePath) => window.api.previewPhoneFile(device?.id, filePath)}
             onNewScan={() => setSyncSummary(null)}
           />
         )}

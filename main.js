@@ -572,6 +572,21 @@ ipcMain.handle('files:openFile', async (_, filePath) => {
   return true
 })
 
+ipcMain.handle('adb:previewFile', async (_, deviceId, filePath) => {
+  if (!deviceId || typeof deviceId !== 'string' || !filePath || typeof filePath !== 'string' || !filePath.startsWith('/')) {
+    return false
+  }
+
+  const previewDir = path.join(app.getPath('cache'), 'phonesync-preview')
+  fs.mkdirSync(previewDir, { recursive: true })
+  const fileName = path.basename(filePath).replace(/[^a-zA-Z0-9._-]/g, '_') || 'phone-file'
+  const previewPath = path.join(previewDir, `${Date.now()}-${fileName}`)
+  await execFilePromise(adbPath, ['-s', deviceId, 'pull', filePath, previewPath])
+  const error = await shell.openPath(previewPath)
+  if (error) throw new Error(error)
+  return true
+})
+
 ipcMain.handle('files:checkPC', async (_, destPath, phoneFiles) => {
   const existingOnPC = new Map()
   const searchQueue = [destPath]

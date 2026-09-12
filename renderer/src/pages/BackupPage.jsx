@@ -29,6 +29,7 @@ export function BackupPage({
   syncSummary,
   onOpenFolder,
   onOpenFile,
+  onOpenPhoneFile,
   onNewScan
 }) {
   const [step, setStep] = useState(1)
@@ -147,9 +148,9 @@ export function BackupPage({
               />
             )}
             {syncSummary ? (
-              <ScanPreview summary={syncSummary} onOpenFolder={onOpenFolder} onOpenFile={onOpenFile} onNewScan={onNewScan} />
+              <ScanPreview summary={syncSummary} onOpenFolder={onOpenFolder} onOpenFile={onOpenFile} onOpenPhoneFile={onOpenPhoneFile} onNewScan={onNewScan} />
             ) : scanResult ? (
-              <ScanPreview result={scanResult} onSync={onSync} onCancel={onCancelScan} onOpenFile={onOpenFile} />
+              <ScanPreview result={scanResult} onSync={onSync} onCancel={onCancelScan} onOpenFile={onOpenFile} onOpenPhoneFile={onOpenPhoneFile} />
             ) : null}
             {isSyncing && <SyncProgress result={scanResult} />}
           </section>
