@@ -78,7 +78,7 @@ export function BackupPage({
     <main className="space-y-5">
       <section className="page-intro">
         <h1>Backup Files</h1>
-        <p className="page-lede">Select the folders that matter, scan for changes, and keep a clean local copy without guessing what has already been saved.</p>
+        <p className="page-lede">Select the folders and files, scan for changes, and keep a clean local copy without guessing what has already been saved.</p>
       </section>
 
       <section className="space-y-5">

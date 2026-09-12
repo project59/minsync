@@ -249,7 +249,7 @@ html.dark *::-webkit-scrollbar-thumb:hover {
   }
 
   .features-section {
-    @apply border-t border-taupe-200 py-12 dark:border-taupe-700;
+    @apply py-12;
   }
 
   .features-intro {
@@ -273,15 +273,15 @@ html.dark *::-webkit-scrollbar-thumb:hover {
   }
 
   .feature-placeholder-sage {
-    @apply bg-[#cfe6d3] dark:bg-[#2f4939];
+    @apply bg-[#73d4aa];
   }
 
   .feature-placeholder-peach {
-    @apply bg-[#f5d4c2] dark:bg-[#513b32];
+    @apply bg-[#9c95dc];
   }
 
   .feature-placeholder-lavender {
-    @apply bg-[#d9d2f1] dark:bg-[#403955];
+    @apply bg-[#ff7099];
   }
 
   .feature-panel-copy h3 {
@@ -293,11 +293,7 @@ html.dark *::-webkit-scrollbar-thumb:hover {
   }
 
   .feature-placeholder {
-    @apply relative flex min-h-56 items-center justify-center overflow-hidden;
-  }
-
-  .placeholder-label {
-    @apply absolute bottom-3 left-4 font-mono text-[9px] uppercase tracking-[0.14em] text-taupe-600/70 dark:text-taupe-200/60;
+    @apply relative flex min-h-56 items-center justify-center overflow-hidden rounded-xl;
   }
 
   .placeholder-window {

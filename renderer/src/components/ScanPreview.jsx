@@ -9,7 +9,7 @@ function formatSize(bytes) {
 function FileList({ files, title, emptyText, onOpenFile, onOpenPhoneFile, existing = false, phone = false }) {
   return (
     <details className="group border-t border-taupe-200 dark:border-taupe-800">
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 pt-3 text-sm font-medium text-taupe-800 dark:text-taupe-200">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 py-3 text-sm font-medium text-taupe-800 dark:text-taupe-200">
         <span>{title} <span className="text-taupe-500">({files.length})</span></span>
         <ChevronDown className="h-4 w-4 text-taupe-500 transition-transform group-open:rotate-180" />
       </summary>
