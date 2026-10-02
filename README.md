@@ -23,7 +23,7 @@ Open the [latest release](https://github.com/project59/minsync/releases/latest) 
 
 - **Linux:** `.AppImage` for a portable app, or `.deb` for Debian-based distributions
 - **macOS:** `.dmg` installer, or `.zip`
-- **Windows:** the **portable `.exe`** is recommended; an NSIS installer is also available
+- **Windows:** the **portable `.exe`** is recommended; an NSIS installer is also available. (Windows release not currently functional)
 
 ## Local development
 
